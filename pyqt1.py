@@ -5,9 +5,10 @@
 2).保证数据传输
 3).
 """
-
 import sys
+import os
 from all_content import *  # all content
+from PyQt5.Qt import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -20,11 +21,6 @@ class Color_Get(QWidget):
         self.color_get1 = QColorDialog.getColor(Qt.white, self, "Select Color")
 
 
-data1 = {'Username': ['1-1', '1-2', '1-3', '1-4'],
-         'Password': ['2-1', '2-2', '2-3', '2-4'],
-         'Age': ['3-1', '3-2', '3-3', '3-4']}
-
-
 # --------------------------------- #
 #   0  | username | password | age  #
 # --------------------------------- #
@@ -35,9 +31,7 @@ class Table_Window(QTableWidget):
         super().__init__(parent)
         self.headItem = self.horizontalHeaderItem(5)
         self.headerWidth = (60, 60, 40, 40, 100)
-
-        self.ui_layout()
-
+        self.ui_layout()  # 启用布局
         self.resizeColumnsToContents()
         # self.resizeRowsToContents()
 
@@ -48,35 +42,39 @@ class Table_Window(QTableWidget):
         self.horizontalHeader().resizeSection(1, 200)
         """
         self.setWindowTitle('Table')
-        self.resize(500, 300)
+        self.resize(630, 330)
         HorizontalHeaderLabels = ["Username", "Password", "Age", "Serial", "More"]
         self.setColumnCount(5)
         self.setRowCount(main.cnt_usr + 1)
         self.setHorizontalHeaderLabels(HorizontalHeaderLabels)
-
-        print("check table2", main.cnt_usr)
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        print("check table2", main.cnt_usr)
+        self.btc = QPushButton(content.btn1_en)
+        self.btc.clicked.connect(self.clear_data)
         # self.headItem.setIcon(QIcon(":ICON/ICON/retest.png"))  # 设置headItem的图标
 
         # .setSortingEnabled (self, bool enable)
 
         for i in range(5):
             self.setColumnWidth(i, self.headerWidth[i])
-            #item = QTableWidgetItem("示例数据%d" % i)
-            for shuju in (main.usr_name, main.text_pw, main.num_get):
-                item = QTableWidgetItem(shuju)
+            item = QTableWidgetItem("示例数据%d" % i)
+            for shuju in (main.usr_name, main.text_pw, main.num_get): pass
+            # item = QTableWidgetItem(shuju)
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)  # 设置文本的对齐
             # 设置QTableWidgetItem 的前景色（字体颜色）
             item.setForeground(QColor("red"))
-            item.setIcon(QIcon("py_icon.png"))  # 设置Item的图标
+            item.setIcon(QIcon('icon/py_icon.png'))  # 设置Item的图标
             self.setItem(0, i, item)
-            #item1 = QTableWidgetItem()
-            #self.setItem(1, i, item1)
+            # item1 = QTableWidgetItem()
+            # self.setItem(1, i, item1)
 
         self.setEditTriggers(QAbstractItemView.AllEditTriggers)
 
         for i in range(main.cnt_usr):
             self.setRowHeight(i, 40)
+
+    def clear_data(self):
+        pass
 
     '''
     def setData(self):
@@ -157,7 +155,10 @@ class Check_Box(QWidget):
 class Main_Window(QMainWindow):
     def __init__(self):
         super(Main_Window, self).__init__()
-        self.cnt_usr = 0
+        with open('usr_data.txt', 'r') as f1:
+            gl_n = list(f1.readline())
+        self.cnt_usr = int(gl_n[7])
+        # print(type(gl_n), gl_n, type(self.cnt_usr), self.cnt_usr)
         self._font1 = QFont(QFont().defaultFamily(), 25)
         self._font2 = QFont(QFont().defaultFamily(), 18)
         self._font3 = QFont(QFont().defaultFamily(), 10)
@@ -274,14 +275,12 @@ class Main_Window(QMainWindow):
 
     def judge_blanc(self):
         """ Return bool_ to judge whether there are blanc among username, password & age."""
-        print("judge?")
         for j_g in (self.usr_name.text(), self.text_pw.text(), self.num_get.text()):
             if len(j_g) == 0:
                 sta = 0
                 break
             elif len(j_g) != 0:
                 sta = 1
-        # print(sta)
         if sta == 0:
             self.warning_close()
             return 0
@@ -297,10 +296,23 @@ class Main_Window(QMainWindow):
     def reg_btn(self):
         self.cnt_usr += 1
         print(self.cnt_usr)
+        with open('usr_data.txt', 'r+') as f2:
+            gt = f2.read()
+        gt_l = list(gt)
+        gt_l[7] = '%d' % self.cnt_usr
+        print("gt_l:", gt_l)
+        gt2 = ''.join(gt_l)
+        print("gt2:", gt2, gt2[7], type(gt2))
+        with open('usr_data.txt', 'w+') as f3:
+            f3.write(gt2)
+            f3.flush()
+
+        # self.create_file()
         # self.table.get_inf()
         if self.judge_blanc() == 0:
             self.cnt_usr -= 1
         elif self.judge_blanc() == 1:
+            self.create_file()
             self.table = Table_Window()
             self.table.show()
 
@@ -346,8 +358,8 @@ class Main_Window(QMainWindow):
         menu1_1.addAction("copy")
         menu1_1.addAction("paste")
         menu1.addSeparator()
-        menu1.addAction(QAction(QIcon("f8.png"), "Save", self, triggered=qApp.quit))
-        menu1.addAction(QAction(QIcon("exit_1.jpg"), "Exit", self, triggered=qApp.quit))
+        menu1.addAction(QAction(QIcon('icon/f8.png'), "Save", self, triggered=qApp.quit))
+        menu1.addAction(QAction(QIcon('icon/exit_1.jpg'), "Exit", self, triggered=qApp.quit))
 
         menu2 = menubar.addMenu(self.menu2_1)
         menu2.addAction(QAction("Delete", self))
@@ -361,6 +373,19 @@ class Main_Window(QMainWindow):
 
     def create_toolbar(self):
         pass
+
+    """
+    Creat a new 'txt' file to save the data
+    the data will storage the information of username, password & age
+    which are written in the mainwindow
+    """
+
+    def create_file(self):
+        f = open('usr_data.txt', 'a')
+        tt = ['usr:', self.usr_name.text(), '|', 'pw:', self.text_pw.text(), '|', 'age:', self.num_get.text(), '\n']
+        str1 = ''.join(tt)
+        # print(self.num_get.text(), type(self.num_get.text()))
+        f.write(str1)
 
 
 if __name__ == "__main__":
