@@ -33,13 +33,11 @@ data1 = {'Username': ['1-1', '1-2', '1-3', '1-4'],
 class Table_Window(QTableWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        # self.headerWidth = (40, 40, 50, 52, 54, 52, 54, 70)
         self.headItem = self.horizontalHeaderItem(5)
         self.headerWidth = (60, 60, 40, 40, 100)
-        # self.data_table = QTableWidget()
+
         self.ui_layout()
-        # self.data1 = data1
-        # self.setData()
+
         self.resizeColumnsToContents()
         # self.resizeRowsToContents()
 
@@ -52,32 +50,33 @@ class Table_Window(QTableWidget):
         self.setWindowTitle('Table')
         self.resize(500, 300)
         HorizontalHeaderLabels = ["Username", "Password", "Age", "Serial", "More"]
-        print("check table1", main.cnt_usr)
         self.setColumnCount(5)
-
         self.setRowCount(main.cnt_usr + 1)
-        print("uni")
         self.setHorizontalHeaderLabels(HorizontalHeaderLabels)
-        print("uni")
+
         print("check table2", main.cnt_usr)
+        self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         # self.headItem.setIcon(QIcon(":ICON/ICON/retest.png"))  # 设置headItem的图标
 
         # .setSortingEnabled (self, bool enable)
 
         for i in range(5):
             self.setColumnWidth(i, self.headerWidth[i])
-            item = QTableWidgetItem("示例数据%d" % i)
+            #item = QTableWidgetItem("示例数据%d" % i)
+            for shuju in (main.usr_name, main.text_pw, main.num_get):
+                item = QTableWidgetItem(shuju)
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)  # 设置文本的对齐
             # 设置QTableWidgetItem 的前景色（字体颜色）
             item.setForeground(QColor("red"))
+            item.setIcon(QIcon("py_icon.png"))  # 设置Item的图标
             self.setItem(0, i, item)
-            item1 = QTableWidgetItem()
-            item1.setIcon(QIcon(":ICON/ICON/next.png"))  # 设置Item的图标
-            self.setItem(1, i, item1)
+            #item1 = QTableWidgetItem()
+            #self.setItem(1, i, item1)
 
         self.setEditTriggers(QAbstractItemView.AllEditTriggers)
-        # self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.setRowHeight(1, 100)
+
+        for i in range(main.cnt_usr):
+            self.setRowHeight(i, 40)
 
     '''
     def setData(self):
