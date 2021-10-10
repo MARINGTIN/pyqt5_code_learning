@@ -1,9 +1,14 @@
 """
 2021—10-10
-今日待定处理内容：
-1).保证表格正常打开放置
-2).保证数据传输
-3).
+今日处理内容：
+1). 保证表格正常打开放置
+2). 数据正确的存储与清除
+3). 快捷打开了表格
+4). ...
+明日目标：
+1). 根据需求实现正则表达式读取数据并填入table
+2). Tree
+3）. ...
 """
 import sys
 import os
@@ -21,18 +26,15 @@ class Color_Get(QWidget):
         self.color_get1 = QColorDialog.getColor(Qt.white, self, "Select Color")
 
 
-# --------------------------------- #
-#   0  | username | password | age  #
-# --------------------------------- #
-#   1  |          |          |      #
-# --------------------------------- #
 class Table_Window(QTableWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.data = []
         self.headItem = self.horizontalHeaderItem(5)
         self.headerWidth = (60, 60, 40, 40, 100)
         self.ui_layout()  # 启用布局
         self.resizeColumnsToContents()
+        # self.get_inf()
         # self.resizeRowsToContents()
 
     def ui_layout(self):
@@ -49,35 +51,48 @@ class Table_Window(QTableWidget):
         self.setHorizontalHeaderLabels(HorizontalHeaderLabels)
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         print("check table2", main.cnt_usr)
-        self.btc = QPushButton(content.btn1_en)
-        self.btc.clicked.connect(self.clear_data)
         # self.headItem.setIcon(QIcon(":ICON/ICON/retest.png"))  # 设置headItem的图标
-
         # .setSortingEnabled (self, bool enable)
 
         for i in range(5):
             self.setColumnWidth(i, self.headerWidth[i])
             item = QTableWidgetItem("示例数据%d" % i)
-            for shuju in (main.usr_name, main.text_pw, main.num_get): pass
+            # for shuju in (main.usr_name, main.text_pw, main.num_get): pass
             # item = QTableWidgetItem(shuju)
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)  # 设置文本的对齐
             # 设置QTableWidgetItem 的前景色（字体颜色）
             item.setForeground(QColor("red"))
-            item.setIcon(QIcon('icon/py_icon.png'))  # 设置Item的图标
+            if i < 4:
+                item.setIcon(QIcon('icon/py_icon.png'))  # 设置Item的图标
+            elif i == 4:
+                item.setIcon(QIcon('icon/del_icon.png'))
             self.setItem(0, i, item)
-            # item1 = QTableWidgetItem()
-            # self.setItem(1, i, item1)
-
         self.setEditTriggers(QAbstractItemView.AllEditTriggers)
-
         for i in range(main.cnt_usr):
             self.setRowHeight(i, 40)
+        print("check table3")
+        # Use this button to clear the usr_data.txt!!!
+        self.btc = QPushButton(content.btn1_en)
+        self.btc.clicked.connect(self.clear_data)
+        self.setCellWidget(0, 4, self.btc)
+        # self.setCellWidget()
 
     def clear_data(self):
-        pass
+        with open('usr_data.txt', 'w+') as f4:
+            f4.write('number:0\n')
+            main.cnt_usr = 0
 
-    '''
+    def get_inf(self):
+        f5 = open('usr_data.txt', 'r')
+        # for i in range(main.cnt_usr + 1):
+        for u_data in f5.readlines():
+            u_data = u_data.strip('\n')
+            self.data.append(u_data)
+        print(self.data, type(self.data))
+        f5.close()
+
     def setData(self):
+
         horHeaders = []
         for n, key in enumerate(sorted(self.data1.keys())):
             horHeaders.append(key)
@@ -91,36 +106,6 @@ class Table_Window(QTableWidget):
         #
         #self.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
-
-    def judge_blanc(self):
-        """ Return bool_ to judge whether there are blanc among username, password & age."""
-        print("judge?")
-        for j_g in (main.usr_name.text(), main.text_pw.text(), main.num_get.text()):
-            if len(j_g) == 0:
-                sta = 0
-                break
-            elif len(j_g) != 0:
-                sta = 1
-        # print(sta)
-        if sta == 0:
-            self.warning_close()
-            return 0
-        elif sta == 1:
-            return 1
-
-    def warning_close(self):
-        QMessageBox.warning(self,
-                            content.mes1_cn,
-                            content.mes2_cn,
-                            QMessageBox.Yes | QMessageBox.No)
-
-
-
-    def get_inf(self):
-        newitem_ = QTableWidgetItem(main.usr_name.text())
-        # self.setItem(3, 3, newitem_)
-
-    '''
 
 
 class Check_Box(QWidget):
@@ -296,25 +281,23 @@ class Main_Window(QMainWindow):
     def reg_btn(self):
         self.cnt_usr += 1
         print(self.cnt_usr)
+        if self.judge_blanc() == 0:
+            self.cnt_usr -= 1
+        elif self.judge_blanc() == 1:
+            self.change_num()
+            self.writing_data()
+            self.table = Table_Window()
+            self.table.get_inf()
+            self.table.show()
+
+    def change_num(self):
         with open('usr_data.txt', 'r+') as f2:
             gt = f2.read()
         gt_l = list(gt)
         gt_l[7] = '%d' % self.cnt_usr
-        print("gt_l:", gt_l)
         gt2 = ''.join(gt_l)
-        print("gt2:", gt2, gt2[7], type(gt2))
         with open('usr_data.txt', 'w+') as f3:
             f3.write(gt2)
-            f3.flush()
-
-        # self.create_file()
-        # self.table.get_inf()
-        if self.judge_blanc() == 0:
-            self.cnt_usr -= 1
-        elif self.judge_blanc() == 1:
-            self.create_file()
-            self.table = Table_Window()
-            self.table.show()
 
     def selectionchange(self, text_content=None):
         self.langue = self.cb.currentText()
@@ -350,8 +333,15 @@ class Main_Window(QMainWindow):
 
     def create_menu(self):
         menubar = self.menuBar()
+        exitButton = QAction(QIcon('icon/exit_1.jpg'), 'Exit', self)
+        exitButton.setShortcut('Ctrl+Q')
+        exitButton.triggered.connect(self.close)
+        tableButton = QAction(QIcon('icon/table_1.png'), 'Table', self)
+        tableButton.setShortcut('Ctrl+T')
+        tableButton.triggered.connect(self.open_table)
+
         menu1 = menubar.addMenu(self.menu1_1)
-        menu1.addAction(QAction("New", self, triggered=qApp.quit))  # 带图标，文字
+        # menu1.addAction(QAction("New", self, self.table.show()))  # 带图标，文字
         menu1.addAction(QAction("Open", self, triggered=qApp.quit))
         menu1.addAction("Close")
         menu1_1 = menu1.addMenu("Try")
@@ -359,7 +349,8 @@ class Main_Window(QMainWindow):
         menu1_1.addAction("paste")
         menu1.addSeparator()
         menu1.addAction(QAction(QIcon('icon/f8.png'), "Save", self, triggered=qApp.quit))
-        menu1.addAction(QAction(QIcon('icon/exit_1.jpg'), "Exit", self, triggered=qApp.quit))
+        menu1.addAction(exitButton)
+        menu1.addAction(tableButton)
 
         menu2 = menubar.addMenu(self.menu2_1)
         menu2.addAction(QAction("Delete", self))
@@ -367,10 +358,14 @@ class Main_Window(QMainWindow):
         menu3 = menubar.addMenu(self.menu3_1)
         menu3.addAction(QAction("Toolbar", self))
 
+    def open_table(self):
+        self.table = Table_Window()
+        self.table.get_inf()
+        self.table.show()
+
     '''
     | Save | Close | ... |
     '''
-
     def create_toolbar(self):
         pass
 
@@ -380,11 +375,11 @@ class Main_Window(QMainWindow):
     which are written in the mainwindow
     """
 
-    def create_file(self):
+    def writing_data(self):
         f = open('usr_data.txt', 'a')
         tt = ['usr:', self.usr_name.text(), '|', 'pw:', self.text_pw.text(), '|', 'age:', self.num_get.text(), '\n']
         str1 = ''.join(tt)
-        # print(self.num_get.text(), type(self.num_get.text()))
+
         f.write(str1)
 
 
