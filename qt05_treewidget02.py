@@ -16,6 +16,7 @@ class TreeWidgetDemo(QMainWindow):
         self.tree.setColumnCount(2)
         # 设置头的标题
         self.tree.setHeaderLabels(['Key', 'Value'])
+        self.tree.setColumnWidth(0, 180)
         root = QTreeWidgetItem(self.tree)
         root.setText(0, 'root_u')
         root.setText(1, '0')

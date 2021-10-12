@@ -1,13 +1,15 @@
 """
-2021—10-12
+2021—10-14
 今日处理内容：
-1). 正确使用正则取出数据
-2). 数据正确的归类进入Tree
-3). Tree组件能正常运行并打印
+1). 正在处理中->创建一个线程，按时间打印一个图形
+2). 正在处理中->创建一个新窗口，实验画图功能
+3). 正在处理中->在画图板种创建多个button，实现快捷绘制
 """
 import sys
 import re
-import os
+import _thread
+import threading
+from time import *
 from all_content import *  # all content
 from PyQt5.Qt import *
 from PyQt5.QtWidgets import *
@@ -16,7 +18,6 @@ from PyQt5.QtGui import *
 
 
 class Color_Get(QWidget):
-
     def __init__(self):
         super(Color_Get, self).__init__()
         self.color_get1 = QColorDialog.getColor(Qt.white, self, "Select Color")
@@ -31,7 +32,6 @@ class Table_Window(QTableWidget):
         self.ui_layout()  # 启用布局
         self.resizeColumnsToContents()
         # self.get_inf()
-        # self.resizeRowsToContents()
 
     def ui_layout(self):
         """
@@ -40,13 +40,13 @@ class Table_Window(QTableWidget):
         self.horizontalHeader().resizeSection(1, 200)
         """
         self.setWindowTitle('Table')
-        self.resize(630, 330)
+        self.resize(650, 330)
+        # self.setStyle()
         HorizontalHeaderLabels = ["Username", "Password", "Age", "Serial", "More"]
         self.setColumnCount(5)
         self.setRowCount(main.cnt_usr + 1)
         self.setHorizontalHeaderLabels(HorizontalHeaderLabels)
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        print("check table2", main.cnt_usr)
         # self.headItem.setIcon(QIcon(":ICON/ICON/retest.png"))  # 设置headItem的图标
         # .setSortingEnabled (self, bool enable)
 
@@ -66,17 +66,25 @@ class Table_Window(QTableWidget):
         self.setEditTriggers(QAbstractItemView.AllEditTriggers)
         for i in range(main.cnt_usr):
             self.setRowHeight(i, 40)
-        print("check table3")
-        # Use this button to clear the usr_data.txt!!!
+
+        # This button clear the usr_data.txt!!!
         self.btc = QPushButton(content.btn1_en)
         self.btc.clicked.connect(self.clear_data)
         self.setCellWidget(0, 4, self.btc)
         # self.setCellWidget()
 
     def clear_data(self):
-        with open("usr_data.txt", "w+") as f4:
-            f4.write("number:0\n")
-            main.cnt_usr = 0
+        reply = QMessageBox.warning(self,
+                                    "WARNING!",
+                                    "按下'Yes'将导致用户数据全部丢失！",
+                                    QMessageBox.Yes | QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            print('Yes, usr_data.txt is deleted...')
+            with open("usr_data.txt", "w+") as f4:
+                f4.write("number:0\n")
+                main.cnt_usr = 0
+        elif reply == QMessageBox.No:
+            print('You did a good choice...\n usr_data.txt feels good!')
 
     def get_inf(self):
         f5 = open('usr_data.txt', 'r')
@@ -88,7 +96,7 @@ class Table_Window(QTableWidget):
         f5.close()
 
     '''
-        def setData(self):
+    def setData(self):
         horHeaders = []
         for n, key in enumerate(sorted(self.data1.keys())):
             horHeaders.append(key)
@@ -108,7 +116,7 @@ class Tree_Data(QWidget):
     def __init__(self):
         super(Tree_Data, self).__init__()
         self.setWindowTitle("TreeWidget 例子")
-        # self.resize(400, 270)
+        self.resize(400, 270)
         self.h_data = []
         with open('usr_data.txt', 'r') as f6:
             for u_data in f6.readlines():
@@ -118,6 +126,7 @@ class Tree_Data(QWidget):
         self.tree = QTreeWidget(self)
         # self.data_handle()
         self.tree.setColumnCount(2)
+        self.tree.setColumnWidth(0, 180)
         # 设置头的标题
         self.tree.setHeaderLabels(['Key', 'Value'])
         self.root_u = QTreeWidgetItem(self.tree)
@@ -134,53 +143,45 @@ class Tree_Data(QWidget):
 
     def onTreeClicked(self):
         item = self.tree.currentItem()
+        # item.setEditTriggers(self, QAbstractItemView.EditTriggers)
         print("key=%s ,value=%s" % (item.text(0), item.text(1)))
 
     def addTreeChild(self):
         print("--- addTreeNewChild ---")
         i = 1
         while i <= main.cnt_usr:
-            self.data_handle(i)
-            n_child = QTreeWidgetItem(self.root_u)
-
+            str_1, str_2, str_3 = self.data_handle(i)
             str_num = 'user' + '%d' % i
+
+            n_child = QTreeWidgetItem(self.root_u)
             n_child.setText(0, str_num)
             n_child.setText(1, '%d' % i)
-
             n_cc1 = QTreeWidgetItem(n_child)
             n_cc1.setText(0, 'username')
-            n_cc1.setText(1, self.str_n[0])
-
+            n_cc1.setText(1, str_1)
             n_cc2 = QTreeWidgetItem(n_child)
             n_cc2.setText(0, 'password')
-            n_cc2.setText(1, self.str_p[0])
-
+            n_cc2.setText(1, str_2)
             n_cc3 = QTreeWidgetItem(n_child)
             n_cc3.setText(0, 'age')
-            n_cc3.setText(1, self.str_a[0])
-            print(i)
-
+            n_cc3.setText(1, str_3)
             i += 1
 
     def data_handle(self, c_u):
-        # RE match username:(?<=usr:).*?(?=\|)
-        # RE match password:(?<=pw:).*?(?=\|)
-        # RE match age     :(?<=age:).
         pattern_n = re.compile('(?<=usr:).*?(?=\|)')
         pattern_p = re.compile('(?<=pw:).*?(?=\|)')
         pattern_a = re.compile('(?<=age:).')
+        str_n = "".join(re.findall(pattern_n, "".join(self.h_data[c_u]), flags=0))
+        str_p = "".join(re.findall(pattern_p, "".join(self.h_data[c_u]), flags=0))
+        str_a = "".join(re.findall(pattern_a, "".join(self.h_data[c_u]), flags=0))
+        print(str_n, str_p, str_a, type(str_n))
+        return str_n, str_p, str_a
 
-        str_t = "".join(self.h_data[c_u])
-
-        self.str_n = re.findall(pattern_n, str_t, flags=0)
-        self.str_p = re.findall(pattern_p, str_t, flags=0)
-        self.str_a = re.findall(pattern_a, str_t, flags=0)
-        print(self.str_n, type(self.str_n))
-
-        # str_n = re.findall('(?<=pw:).*?(?=\|)', str_t, flags=0)
-
-        # print(str_t)
-        # print(re.findall('(?<=pw:).*?(?=\|)', str_t, flags=0))
+    def change_data(self):
+        pass
+    # 直接选中修改value的值，能把修改传递回usr_data.txt
+    # todo:tree_data_change->usr_data.txt
+    # self.onTreeClicked()
 
 
 class Check_Box(QWidget):
@@ -212,6 +213,38 @@ class Check_Box(QWidget):
                 print(b.text() + " is deselected")
 
 
+class Paint_Draw(QWidget):
+    def __init__(self):
+        super(Paint_Draw, self).__init__()
+        self.setWindowTitle("Paint & Draw")
+        self.qp = QPixmap()
+        self.ui_layout()
+        # self.paintEvent()
+
+    def ui_layout(self):
+        self.resize(600, 600)
+        self.qp = QPixmap(600, 600)
+        self.qp.fill(Qt.white)
+
+    def refresh_size(self):
+        # 画布尺寸刷新，以适应窗口拖动！
+        sa = self.size()
+        w = sa.width()
+        h = sa.height()
+        self.qp = QPixmap(w, h)
+        self.qp.fill(Qt.white)
+
+    '''
+        def paintEvent(self, event):
+        c1 = 0
+        #while c1 <= 1.5:
+        time.sleep(0.001)
+        c1 += 0.001
+        print(c1)
+
+    '''
+
+
 class Main_Window(QMainWindow):
     def __init__(self):
         super(Main_Window, self).__init__()
@@ -219,56 +252,52 @@ class Main_Window(QMainWindow):
             gl_n = list(f1.readline())
         self.cnt_usr = int(gl_n[7])
         # print(type(gl_n), gl_n, type(self.cnt_usr), self.cnt_usr)
-        self._font1 = QFont(QFont().defaultFamily(), 25)
-        self._font2 = QFont(QFont().defaultFamily(), 18)
-        self._font3 = QFont(QFont().defaultFamily(), 10)
-        # self._font4 = QFont(QFont().defaultFamily(), )
-
-        self.text_usr = QLabel(content.con1_en)
-        self.text_usr.setFont(self._font2)
-        self.text_cbt = QLabel(content.con3_en)
-        self.text_cbt.setFont(self._font2)
-        self.text_tips = QLabel(content.con4_en)
-        self.text_tips.setFont(self._font2)
-        self.text_num = QLabel(content.btn4_en)
-        self.usr_name = QLineEdit()
-        self.usr_name.setPlaceholderText("The default")
-        self.usr_name.setFont(self._font2)
-        self.text_pw = QLineEdit()
-        self.text_pw.setFont(self._font2)
-        self.text_pw.setReadOnly(True)
-        self.num_get = QLineEdit()
-        self.num_get.setFont(self._font2)
-        self.num_get.setReadOnly(True)
-        self.menu1_1 = content.str_menu1[0]
-        self.menu2_1 = content.str_menu2[0]
-        self.menu3_1 = content.str_menu3[0]
+        self.load_text()
 
         self.cb = QComboBox()
         self.cb.addItem("...")
         self.cb.addItems(["中文", "Français", "Italiano", "日本語"])
-        self.cb.setFont(self._font2)
+        self.cb.setFont(self._fonts)
         self.cb.currentIndexChanged.connect(self.selectionchange)
-
-        # self.menu1_l = [content.menu1_en, content.menu1_cn]
-        # self.menu1 = self.menu1_l[0]
+        self.cb.setStyle(QStyleFactory.create("Fusion"))
 
         self.create_menu()
         self.creatButton()
-        # self.create_toolbar()
+        self.create_toolbar()
         self.initUI()
         # self.handle = Data_handle()
 
-    # noinspection PyArgumentList
+    def load_text(self):
+        self._font1 = QFont(QFont().defaultFamily(), 25)
+        self._font2 = QFont(QFont().defaultFamily(), 18)
+        self._font3 = QFont(QFont().defaultFamily(), 10)
+        font_s1 = QFont("方正FW筑紫A圆 简 D", 18)
+        self._fonts = QFont(font_s1)
+        self.text_usr = QLabel(content.con1_en)
+        self.text_cbt = QLabel(content.con3_en)
+        self.text_tips = QLabel(content.con4_en)
+        self.text_num = QLabel(content.btn4_en)
+        self.usr_name = QLineEdit()
+        self.usr_name.setPlaceholderText("The default")
+        self.text_pw = QLineEdit()
+        self.text_pw.setReadOnly(True)
+        self.num_get = QLineEdit()
+        self.num_get.setReadOnly(True)
+        self.menu1_1 = content.str_menu1[0]
+        self.menu2_1 = content.str_menu2[0]
+        self.menu3_1 = content.str_menu3[0]
+        for ttt in (self.text_usr, self.text_cbt, self.text_tips, self.usr_name, self.text_pw, self.num_get):
+            ttt.setFont(self._fonts)
+
     def initUI(self):
         self.setWindowTitle('Example of PyQt5')
         self.resize(556, 270)
         wl = QVBoxLayout(self)
         h1 = QHBoxLayout()  # Text information & Text box
-        h2 = QHBoxLayout()  # Text information & password (readonly)
-        h3 = QHBoxLayout()  # Text information & number (readonly)
+        h2 = QHBoxLayout()  # Button "password" & password (readonly)
+        h3 = QHBoxLayout()  # Button "Age" & number (readonly)
         h4 = QHBoxLayout()  # Tips & ComboBox
-        h5 = QHBoxLayout()  # Button "Clear", "Close", "password", "number"
+        h5 = QHBoxLayout()  # Button "Clear", "Close", "Register", "Tree(Test)"
         wl.addLayout(h1)
         wl.addLayout(h2)
         wl.addLayout(h3)
@@ -291,24 +320,22 @@ class Main_Window(QMainWindow):
         self.show()
 
     def creatButton(self):
+        # self.bbb = QPushButton('')
         self.btn1 = QPushButton(content.btn1_en)
-        self.btn1.setFont(self._font2)
         self.btn2 = QPushButton(content.btn2_en)
-        self.btn2.setFont(self._font2)
         self.btn3 = QPushButton(content.btn3_en)
-        self.btn3.setFont(self._font2)
         self.btn4 = QPushButton(content.btn4_en)
-        self.btn4.setFont(self._font2)
         self.btn5 = QPushButton(content.btn5_en)
-        self.btn5.setFont(self._font2)
         self.btn6 = QPushButton(content.btn6_en)
-        self.btn6.setFont(self._font2)
         self.btn1.clicked.connect(self.clear_btn)
         self.btn2.clicked.connect(self.close)
         self.btn3.clicked.connect(self.pw_btn)
         self.btn4.clicked.connect(self.number_btn)
         self.btn5.clicked.connect(self.reg_btn)
         self.btn6.clicked.connect(self.tree_btn)
+        for bbb in (self.btn1, self.btn2, self.btn3, self.btn4, self.btn5, self.btn6):
+            bbb.setFont(self._fonts)
+            bbb.setStyle(QStyleFactory.create("Fusion"))
 
     def echo(self, value):
         """显示对话框返回值"""
@@ -378,7 +405,7 @@ class Main_Window(QMainWindow):
 
     def selectionchange(self, text_content=None):
         self.langue = self.cb.currentText()
-        # main_new = Main_Window()
+        # main_new = Draw_Window()
         if self.langue == '中文':
             print("Choose Chinese")
             self.text_usr.setText(content.con1_cn)
@@ -410,27 +437,32 @@ class Main_Window(QMainWindow):
 
     def create_menu(self):
         menubar = self.menuBar()
-        exitButton = QAction(QIcon('icon/exit_1.jpg'), 'Exit', self)
+        exitButton = QAction(QIcon('./icon/exit_1.jpg'), 'Exit', self)
         exitButton.setShortcut('Ctrl+Q')
         exitButton.triggered.connect(self.close)
-        tableButton = QAction(QIcon('icon/table_1.png'), 'Table', self)
+        tableButton = QAction(QIcon('./icon/table_1.png'), 'Table', self)
         tableButton.setShortcut('Ctrl+T')
         tableButton.triggered.connect(self.open_table)
+        drawButton = QAction(QIcon('./icon/paint_icon.jpg'), "Paint", self)
+        drawButton.setShortcut('Ctrl+D')
+        drawButton.triggered.connect(self.paint_sth)
 
         menu1 = menubar.addMenu(self.menu1_1)
         # menu1.addAction(QAction("New", self, self.table.show()))  # 带图标，文字
-        menu1.addAction(QAction("Open", self, triggered=qApp.quit))
+        menu1.addAction(QAction("Open", self))
         menu1.addAction("Close")
         menu1_1 = menu1.addMenu("Try")
         menu1_1.addAction("copy")
         menu1_1.addAction("paste")
         menu1.addSeparator()
-        menu1.addAction(QAction(QIcon('icon/f8.png'), "Save", self, triggered=qApp.quit))
+        menu1.addAction(QAction(QIcon('./icon/f8.png'), "Save", self))
         menu1.addAction(exitButton)
         menu1.addAction(tableButton)
 
         menu2 = menubar.addMenu(self.menu2_1)
         menu2.addAction(QAction("Delete", self))
+        menu2.addSeparator()
+        menu2.addAction(drawButton)
 
         menu3 = menubar.addMenu(self.menu3_1)
         menu3.addAction(QAction("Toolbar", self))
@@ -445,24 +477,45 @@ class Main_Window(QMainWindow):
     '''
 
     def create_toolbar(self):
-        pass
+        toolbar = self.addToolBar('')
+        toolbar.setStyle(QStyleFactory.create("Fusion"))
+        paint_bar = QAction(QIcon('./icon/paint_icon.jpg'), "Paint", self)
+        table_bar = QAction(QIcon('./icon/table_1.png'), "Table", self)
+        toolbar.addAction(paint_bar)
+        toolbar.addAction(table_bar)
+        toolbar.addSeparator()
+        toolbar.actionTriggered[QAction].connect(self.toolbtnpressed)
 
-    """
-    Creat a new 'txt' file to save the data
-    the data will storage the information of username, password & age
-    which are written in the mainwindow
-    """
+    def toolbtnpressed(self, a):
+        print("Push the toolbar button:", a.text())
+        # todo:使用if语句，通过a.text()，给toolbar的按钮赋予功能, 因为种种原因，draw按钮暂时空置
+        if a.text() == "Table":
+            self.open_table()
 
     def writing_data(self):
         f = open('usr_data.txt', 'a')
         tt = ['usr:', self.usr_name.text(), '|', 'pw:', self.text_pw.text(), '|', 'age:', self.num_get.text(), '\n']
         str1 = ''.join(tt)
-
         f.write(str1)
+        f.close()
 
     def tree_btn(self):
         self.rtree = Tree_Data()
         self.rtree.show()
+
+    def paint_sth(self):
+        # todo: here, we create a button which when you click it will create a pixmap and you can draw sth. on it.
+        self.p_d = Paint_Draw()
+        self.p_d.show()
+
+    # def print_time(threadName):pass
+    '''
+    @staticmethod
+    def thread_it(func, *args):
+        t = threading.Thread(target=func, args=args)
+        t.setDaemon(True)  # 守护--就算主界面关闭，线程也会留守后台运行（不对!）
+        t.start()  # 启动
+    '''
 
 
 if __name__ == "__main__":
