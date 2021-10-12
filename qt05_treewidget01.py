@@ -23,7 +23,7 @@ class TreeWidgetDemo(QMainWindow):
         self.tree.setHeaderLabels(['Key', 'Value'])
         # 设置根节点
         root = QTreeWidgetItem(self.tree)
-        root.setText(0, 'root')
+        root.setText(0, 'root_u')
         root.setIcon(0, QIcon("./icon/root.png"))
         # 设置列宽
         self.tree.setColumnWidth(0, 180)

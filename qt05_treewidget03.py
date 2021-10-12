@@ -11,7 +11,7 @@ class TreeWidgetDemo(QWidget):
     def __init__(self, parent=None):
         super(TreeWidgetDemo, self).__init__(parent)
         self.setWindowTitle('TreeWidget 例子')
-
+        '''
         operatorLayout = QHBoxLayout()
         addBtn = QPushButton("添加节点")
         updateBtn = QPushButton("修改节点")
@@ -23,6 +23,8 @@ class TreeWidgetDemo(QWidget):
         addBtn.clicked.connect(self.addTreeNodeBtn)
         updateBtn.clicked.connect(self.updateTreeNodeBtn)
         delBtn.clicked.connect(self.delTreeNodeBtn)
+        '''
+
 
         self.tree = QTreeWidget(self)
         # 设置列数
@@ -30,7 +32,7 @@ class TreeWidgetDemo(QWidget):
         # 设置头的标题
         self.tree.setHeaderLabels(['Key', 'Value'])
         root = QTreeWidgetItem(self.tree)
-        root.setText(0, 'root')
+        root.setText(0, 'root_u')
         root.setText(1, '0')
 
         child1 = QTreeWidgetItem(root)
@@ -57,11 +59,11 @@ class TreeWidgetDemo(QWidget):
         self.tree.clicked.connect(self.onTreeClicked)
 
         mainLayout = QVBoxLayout(self)
-        mainLayout.addLayout(operatorLayout)
+        #mainLayout.addLayout(operatorLayout)
         mainLayout.addWidget(self.tree)
         self.setLayout(mainLayout)
 
-    def onTreeClicked(self, qmodelindex):
+    def onTreeClicked(self):
         item = self.tree.currentItem()
         print("key=%s ,value=%s" % (item.text(0), item.text(1)))
 
@@ -70,7 +72,7 @@ class TreeWidgetDemo(QWidget):
         item = self.tree.currentItem()
         node = QTreeWidgetItem(item)
         node.setText(0, 'newNode')
-        node.setText(1, '10')
+        node.setText(1, '')
 
     def updateTreeNodeBtn(self):
         print('--- updateTreeNodeBtn ---')

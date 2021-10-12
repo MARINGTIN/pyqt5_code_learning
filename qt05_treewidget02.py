@@ -17,7 +17,7 @@ class TreeWidgetDemo(QMainWindow):
         # 设置头的标题
         self.tree.setHeaderLabels(['Key', 'Value'])
         root = QTreeWidgetItem(self.tree)
-        root.setText(0, 'root')
+        root.setText(0, 'root_u')
         root.setText(1, '0')
 
         child1 = QTreeWidgetItem(root)

@@ -7,7 +7,6 @@
 
 import sys
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -18,6 +17,6 @@ if __name__ == '__main__':
     # 为部件添加模式
     tree.setModel(model)
     tree.setWindowTitle('QTreeView 例子')
-    tree.resize(640, 480)
+    tree.resize(640, 400)
     tree.show()
     sys.exit(app.exec_())

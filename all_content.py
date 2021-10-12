@@ -19,6 +19,8 @@ class Text_Content:
         self.btn4_cn = " 获取年龄 "
         self.btn5_en = "Register"
         self.btn5_cn = "登记"
+        self.btn6_en = "Tree(Test)"
+        self.btn6_cn = "数据树（测试）"
         # text of the menu
         self.str_menu1 = ["File", "文件(F)"]
         self.str_menu2 = ["Edit", "编辑(&E)"]
@@ -28,3 +30,5 @@ class Text_Content:
         self.mes1_cn = "警告！"
         self.mes2_en = "Check Username, Password & Age,\nthere is blanc among them."
         self.mes2_cn = "请检查输入的用户名，密码或年龄，\n其中有空白项，本次数据将不会导入"
+
+        '''我有个程序简化的想法，把这些都装进字典（或者列表或者元组随便啥都行），然后在中英文切换的时候只需要写个循环让所有元素加减1就行'''

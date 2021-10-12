@@ -1,16 +1,12 @@
 """
-2021—10-10
+2021—10-12
 今日处理内容：
-1). 保证表格正常打开放置
-2). 数据正确的存储与清除
-3). 快捷打开了表格
-4). ...
-明日目标：
-1). 根据需求实现正则表达式读取数据并填入table
-2). Tree
-3）. ...
+1). 正确使用正则取出数据
+2). 数据正确的归类进入Tree
+3). Tree组件能正常运行并打印
 """
 import sys
+import re
 import os
 from all_content import *  # all content
 from PyQt5.Qt import *
@@ -78,8 +74,8 @@ class Table_Window(QTableWidget):
         # self.setCellWidget()
 
     def clear_data(self):
-        with open('usr_data.txt', 'w+') as f4:
-            f4.write('number:0\n')
+        with open("usr_data.txt", "w+") as f4:
+            f4.write("number:0\n")
             main.cnt_usr = 0
 
     def get_inf(self):
@@ -91,8 +87,8 @@ class Table_Window(QTableWidget):
         print(self.data, type(self.data))
         f5.close()
 
-    def setData(self):
-
+    '''
+        def setData(self):
         horHeaders = []
         for n, key in enumerate(sorted(self.data1.keys())):
             horHeaders.append(key)
@@ -104,8 +100,87 @@ class Table_Window(QTableWidget):
         print(horHeaders)
         self.setHorizontalHeaderLabels(horHeaders)
         #
-        #self.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        # self.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+    '''
 
+
+class Tree_Data(QWidget):
+    def __init__(self):
+        super(Tree_Data, self).__init__()
+        self.setWindowTitle("TreeWidget 例子")
+        # self.resize(400, 270)
+        self.h_data = []
+        with open('usr_data.txt', 'r') as f6:
+            for u_data in f6.readlines():
+                u_data = u_data.strip('\n')
+                self.h_data.append(u_data)
+
+        self.tree = QTreeWidget(self)
+        # self.data_handle()
+        self.tree.setColumnCount(2)
+        # 设置头的标题
+        self.tree.setHeaderLabels(['Key', 'Value'])
+        self.root_u = QTreeWidgetItem(self.tree)
+        self.root_u.setText(0, 'root_u')
+        self.root_u.setText(1, 'user_data')
+
+        self.tree.addTopLevelItem(self.root_u)
+        self.tree.clicked.connect(self.onTreeClicked)
+        self.addTreeChild()
+
+        treeLayout = QVBoxLayout(self)
+        treeLayout.addWidget(self.tree)
+        self.setLayout(treeLayout)
+
+    def onTreeClicked(self):
+        item = self.tree.currentItem()
+        print("key=%s ,value=%s" % (item.text(0), item.text(1)))
+
+    def addTreeChild(self):
+        print("--- addTreeNewChild ---")
+        i = 1
+        while i <= main.cnt_usr:
+            self.data_handle(i)
+            n_child = QTreeWidgetItem(self.root_u)
+
+            str_num = 'user' + '%d' % i
+            n_child.setText(0, str_num)
+            n_child.setText(1, '%d' % i)
+
+            n_cc1 = QTreeWidgetItem(n_child)
+            n_cc1.setText(0, 'username')
+            n_cc1.setText(1, self.str_n[0])
+
+            n_cc2 = QTreeWidgetItem(n_child)
+            n_cc2.setText(0, 'password')
+            n_cc2.setText(1, self.str_p[0])
+
+            n_cc3 = QTreeWidgetItem(n_child)
+            n_cc3.setText(0, 'age')
+            n_cc3.setText(1, self.str_a[0])
+            print(i)
+
+            i += 1
+
+    def data_handle(self, c_u):
+        # RE match username:(?<=usr:).*?(?=\|)
+        # RE match password:(?<=pw:).*?(?=\|)
+        # RE match age     :(?<=age:).
+        pattern_n = re.compile('(?<=usr:).*?(?=\|)')
+        pattern_p = re.compile('(?<=pw:).*?(?=\|)')
+        pattern_a = re.compile('(?<=age:).')
+
+        str_t = "".join(self.h_data[c_u])
+
+        self.str_n = re.findall(pattern_n, str_t, flags=0)
+        self.str_p = re.findall(pattern_p, str_t, flags=0)
+        self.str_a = re.findall(pattern_a, str_t, flags=0)
+        print(self.str_n, type(self.str_n))
+
+        # str_n = re.findall('(?<=pw:).*?(?=\|)', str_t, flags=0)
+
+        # print(str_t)
+        # print(re.findall('(?<=pw:).*?(?=\|)', str_t, flags=0))
 
 
 class Check_Box(QWidget):
@@ -182,6 +257,7 @@ class Main_Window(QMainWindow):
         self.creatButton()
         # self.create_toolbar()
         self.initUI()
+        # self.handle = Data_handle()
 
     # noinspection PyArgumentList
     def initUI(self):
@@ -206,7 +282,7 @@ class Main_Window(QMainWindow):
             h3.addWidget(get_num, 0, Qt.AlignCenter | Qt.AlignTop)
         for combo_all in (self.text_cbt, self.cb):
             h4.addWidget(combo_all)
-        for btn in (self.btn1, self.btn2, self.btn5):
+        for btn in (self.btn1, self.btn2, self.btn5, self.btn6):
             h5.addWidget(btn)
 
         main_frame = QWidget()
@@ -225,11 +301,14 @@ class Main_Window(QMainWindow):
         self.btn4.setFont(self._font2)
         self.btn5 = QPushButton(content.btn5_en)
         self.btn5.setFont(self._font2)
+        self.btn6 = QPushButton(content.btn6_en)
+        self.btn6.setFont(self._font2)
         self.btn1.clicked.connect(self.clear_btn)
         self.btn2.clicked.connect(self.close)
         self.btn3.clicked.connect(self.pw_btn)
         self.btn4.clicked.connect(self.number_btn)
         self.btn5.clicked.connect(self.reg_btn)
+        self.btn6.clicked.connect(self.tree_btn)
 
     def echo(self, value):
         """显示对话框返回值"""
@@ -286,9 +365,7 @@ class Main_Window(QMainWindow):
         elif self.judge_blanc() == 1:
             self.change_num()
             self.writing_data()
-            self.table = Table_Window()
-            self.table.get_inf()
-            self.table.show()
+            self.open_table()
 
     def change_num(self):
         with open('usr_data.txt', 'r+') as f2:
@@ -366,6 +443,7 @@ class Main_Window(QMainWindow):
     '''
     | Save | Close | ... |
     '''
+
     def create_toolbar(self):
         pass
 
@@ -381,6 +459,10 @@ class Main_Window(QMainWindow):
         str1 = ''.join(tt)
 
         f.write(str1)
+
+    def tree_btn(self):
+        self.rtree = Tree_Data()
+        self.rtree.show()
 
 
 if __name__ == "__main__":

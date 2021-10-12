@@ -1,4 +1,7 @@
-number:3
+number:6
 usr:123|pw:Default_0|age:7
-usr:123|pw:Default_0|age:7
+usr:Ê×³¤|pw:Default_0|age:57
 usr:25352|pw:Default_0|age:6
+usr:pps|pw:wddd|age:3
+usr:test|pw:mon_non|age:21
+usr:Wrong type|pw:pw£º12345|age:14
