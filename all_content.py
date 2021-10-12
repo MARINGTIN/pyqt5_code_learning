@@ -32,3 +32,10 @@ class Text_Content:
         self.mes2_cn = "请检查输入的用户名，密码或年龄，\n其中有空白项，本次数据将不会导入"
 
         '''我有个程序简化的想法，把这些都装进字典（或者列表或者元组随便啥都行），然后在中英文切换的时候只需要写个循环让所有元素加减1就行'''
+        self.con_lib = ["Enter username:", "输入用户名:   ", "Select the Language", "选择你想要的语言",
+                        'The Password which you entre\nwill pass into first windows\' text box\n\n',
+                        "在本页面输入的密码\n将会在确认后传回主窗口的密码栏\n\n在下方输入：", "Clear", "清除", "Close", "关闭",
+                        " Password ", "  密  码  ", " Get  age ", " 获取年龄 ", "Register", "登记", "Tree(Test)",
+                        "数据树（测试）", "File", "文件(F)", "Edit", "编辑(&E)", "View", "视图(&V)", "Warning!", "警告！",
+                        "Check Username, Password & Age,\nthere is blanc among them.",
+                        "请检查输入的用户名，密码或年龄，\n其中有空白项，本次数据将不会导入"]
