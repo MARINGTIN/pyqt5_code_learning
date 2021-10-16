@@ -1,8 +1,8 @@
 class Text_Content:
     def __init__(self):
         # text content
-        self.con1_en = "Enter username:"
-        self.con1_cn = "输入用户名:   "
+        self.con1_en = "  Username:"
+        self.con1_cn = "      用户名: "
 
         self.con3_en = "Select the Language"
         self.con3_cn = "选择你想要的语言"
