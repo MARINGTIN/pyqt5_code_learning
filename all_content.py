@@ -1,8 +1,8 @@
 class Text_Content:
     def __init__(self):
         # text content
-        self.con1_en = "  Username:"
-        self.con1_cn = "      用户名: "
+        self.con1_en = "Username:"
+        self.con1_cn = "用户名: "
 
         self.con3_en = "Select the Language"
         self.con3_cn = "选择你想要的语言"
@@ -13,8 +13,8 @@ class Text_Content:
         self.btn1_cn = "清除"
         self.btn2_en = "Close"
         self.btn2_cn = "关闭"
-        self.btn3_en = "Password"
-        self.btn3_cn = "  密      码  "
+        self.btn3_en = " Password "
+        self.btn3_cn = "  密  码  "
         self.btn4_en = " Get  age "
         self.btn4_cn = " 获取年龄 "
         self.btn5_en = " Register "

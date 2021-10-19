@@ -305,7 +305,7 @@ class Main_Window(QMainWindow):
         wl.addLayout(h4)
         wl.addLayout(h5)
         for text_all in (self.text_usr, self.usr_name):
-            h1.addWidget(text_all, 0, Qt.AlignLeft | Qt.AlignCenter)
+            h1.addWidget(text_all, 0, Qt.AlignCenter)
         for text_in in (self.btn3, self.text_pw):
             h2.addWidget(text_in, 0, Qt.AlignCenter | Qt.AlignVCenter)
         for get_num in (self.btn4, self.num_get):
@@ -447,6 +447,9 @@ class Main_Window(QMainWindow):
         drawButton = QAction(QIcon('./icon/paint_icon.jpg'), "Paint", self)
         drawButton.setShortcut('Ctrl+D')
         drawButton.triggered.connect(self.paint_sth)
+        toolbar_turn = QAction('Toolbar', self, checkable=True)
+        toolbar_turn.setChecked(True)
+        toolbar_turn.triggered.connect(self.toolbar_t)
 
         menu1 = menubar.addMenu(self.menu1_1)
         # menu1.addAction(QAction("New", self, self.table.show()))  # 带图标，文字
@@ -466,26 +469,33 @@ class Main_Window(QMainWindow):
         menu2.addAction(drawButton)
 
         menu3 = menubar.addMenu(self.menu3_1)
-        menu3.addAction(QAction("Toolbar", self))
+        menu3.addAction(toolbar_turn)
 
     def open_table(self):
         self.table = Table_Window()
         self.table.get_inf()
         self.table.show()
 
+    def toolbar_t(self, state):
+        print("'toolbar' is clicked, the state is:", state, type(state))
+        if not state:
+            self.toolbar.setHidden(True)
+        elif state:
+            self.toolbar.setHidden(False)
+
     '''
     | Save | Close | ... |
     '''
 
     def create_toolbar(self):
-        toolbar = self.addToolBar('')
-        toolbar.setStyle(QStyleFactory.create("Fusion"))
+        self.toolbar = self.addToolBar('')
+        self.toolbar.setStyle(QStyleFactory.create("Fusion"))
         paint_bar = QAction(QIcon('./icon/paint_icon.jpg'), "Paint", self)
         table_bar = QAction(QIcon('./icon/table_1.png'), "Table", self)
-        toolbar.addAction(paint_bar)
-        toolbar.addAction(table_bar)
-        toolbar.addSeparator()
-        toolbar.actionTriggered[QAction].connect(self.toolbtnpressed)
+        self.toolbar.addAction(paint_bar)
+        self.toolbar.addAction(table_bar)
+        self.toolbar.addSeparator()
+        self.toolbar.actionTriggered[QAction].connect(self.toolbtnpressed)
 
     def toolbtnpressed(self, a):
         print("Push the toolbar button:", a.text())
