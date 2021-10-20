@@ -112,7 +112,6 @@ class Table_Window(QTableWidget):
     '''
 
 
-
 class Tree_Data(QWidget):
     def __init__(self):
         super(Tree_Data, self).__init__()
@@ -185,21 +184,28 @@ class Tree_Data(QWidget):
     # self.onTreeClicked()
 
 
-class Check_Box(QWidget):
+class Agreement_Box(QWidget):
     def __init__(self, parent=None):
-        super(Check_Box, self).__init__(parent)
+        super(Agreement_Box, self).__init__(parent)
+        self.setWindowTitle("Agreement")
+        self.resize(500, 200)
         layout = QHBoxLayout()
-        self.b1 = QCheckBox("Button1")
+        self.ag_txt = QLabel(content.agq_en)
+        self.ag_cnt = QTextEdit()
+        self.ag_cnt.setPlainText(content.agt_en)
+        self.ag_cnt.setReadOnly()
+
+        self.b1 = QCheckBox("male")
         self.b1.setChecked(True)
         self.b1.stateChanged.connect(lambda: self.btnstate(self.b1))
-        layout.addWidget(self.b1)
-
-        self.b2 = QCheckBox("Button2")
+        self.b2 = QCheckBox("")
         self.b2.toggled.connect(lambda: self.btnstate(self.b2))
-
-        layout.addWidget(self.b2)
         self.setLayout(layout)
-        self.setWindowTitle("checkbox demo")
+        # self.setWindowTitle("checkbox demo")
+        layout.addWidget(self.ag_txt)
+        layout.addWidget(self.ag_cnt)
+        layout.addWidget(self.b1)
+        # layout.addWidget(self.b2)
 
     def btnstate(self, b):
         if b.text() == "Button1":

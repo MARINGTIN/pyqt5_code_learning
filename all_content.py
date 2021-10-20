@@ -30,6 +30,24 @@ class Text_Content:
         self.mes1_cn = "警告！"
         self.mes2_en = "Check Username, Password & Age,\nthere is blanc among them."
         self.mes2_cn = "请检查输入的用户名，密码或年龄，\n其中有空白项，本次数据将不会导入"
+        # text of the checkbox
+        self.agq_en = "Please read the following user agreements carefully:"
+        self.agq_cn = "请仔细阅读以下用户协议："
+        self.agt_en = "Please confirm that you are aware that the results of using this service and the associated " \
+                      "information generated therefrom will be stored.\nIf you are aware of the risk of information " \
+                      "leakage caused by this service and insist on using this service, please check the two " \
+                      "Checkboxes below and click Next.\nIf you reject this service regulation, please choose to " \
+                      "cancel, and the information will be completely destroyed after the end of this service.\nOf " \
+                      "course, you have to accept and bear the related risks and continue to use this service. "
+        self.agt_cn = "请确认您已经知悉使用本服务的结果和因此产生的关联信息将被存储。\n如果您已经知悉了本服务" \
+                      "所带来的信息泄露风险，并坚持使用本服务，请确认选择下方的同意按钮，并点击下一步。\n" \
+                      "如果您拒绝本服务，请选择取消，本次服务结束后信息也将彻底销毁。\n" \
+                      "当然您不能不接受并承担相关的风险还继续使用本服务。"
+        self.qr1_en = "\nI've already read above all, and I'm already aware of the risk." \
+                      "\nI accept the above agreement and voluntarily assume all risks."
+        self.qr1_cn = "我已阅读上述文本内容，已经知悉其中风险。我确认接受以上协议，并自愿承担全部风险。"
+        self.qr2_en = "I refuse to accept the above agreement."
+        self.qr2_cn = "我拒绝接受以上协议。"
 
         '''我有个程序简化的想法，把这些都装进字典（或者列表或者元组随便啥都行），然后在中英文切换的时候只需要写个循环让所有元素加减1就行'''
         self.con_lib = ["Enter username:", "输入用户名:   ", "Select the Language", "选择你想要的语言",
