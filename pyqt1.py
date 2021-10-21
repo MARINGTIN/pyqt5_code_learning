@@ -26,7 +26,7 @@ class Color_Get(QWidget):
 class Table_Window(QTableWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.data = []
+        self.t_data = []
         self.headItem = self.horizontalHeaderItem(5)
         self.headerWidth = (60, 60, 40, 40, 100)
         self.ui_layout()  # 启用布局
@@ -42,7 +42,7 @@ class Table_Window(QTableWidget):
         self.setWindowTitle('Table')
         self.resize(650, 330)
         # self.setStyle()
-        HorizontalHeaderLabels = ["Username", "Password", "Age", "Serial", "More"]
+        HorizontalHeaderLabels = ["Username", "Password", "Age", "ReadOnly", "More"]
         self.setColumnCount(5)
         self.setRowCount(main.cnt_usr + 1)
         self.setHorizontalHeaderLabels(HorizontalHeaderLabels)
@@ -91,9 +91,13 @@ class Table_Window(QTableWidget):
         # for i in range(main.cnt_usr + 1):
         for u_data in f5.readlines():
             u_data = u_data.strip('\n')
-            self.data.append(u_data)
-        print(self.data, type(self.data))
+            self.t_data.append(u_data)
+
+        print(self.t_data, type(self.t_data))
         f5.close()
+
+    def set_data(self):pass
+
 
     '''
     def setData(self):
@@ -505,9 +509,11 @@ class Main_Window(QMainWindow):
 
     def toolbtnpressed(self, a):
         print("Push the toolbar button:", a.text())
-        # todo:使用if语句，通过a.text()，给toolbar的按钮赋予功能, 因为种种原因，draw按钮暂时空置
+
         if a.text() == "Table":
             self.open_table()
+        elif a.text() == "Paint":
+            self.paint_sth()
 
     def writing_data(self):
         f = open('usr_data.txt', 'a')

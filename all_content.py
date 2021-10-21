@@ -43,8 +43,7 @@ class Text_Content:
                       "所带来的信息泄露风险，并坚持使用本服务，请确认选择下方的同意按钮，并点击下一步。\n" \
                       "如果您拒绝本服务，请选择取消，本次服务结束后信息也将彻底销毁。\n" \
                       "当然您不能不接受并承担相关的风险还继续使用本服务。"
-        self.qr1_en = "\nI've already read above all, and I'm already aware of the risk." \
-                      "\nI accept the above agreement and voluntarily assume all risks."
+        self.qr1_en = "I accept the above agreement and voluntarily assume all risks."
         self.qr1_cn = "我已阅读上述文本内容，已经知悉其中风险。我确认接受以上协议，并自愿承担全部风险。"
         self.qr2_en = "I refuse to accept the above agreement."
         self.qr2_cn = "我拒绝接受以上协议。"
