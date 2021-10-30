@@ -96,8 +96,8 @@ class Table_Window(QTableWidget):
         print(self.t_data, type(self.t_data))
         f5.close()
 
-    def set_data(self):pass
-
+    def set_data(self):
+        pass
 
     '''
     def setData(self):
@@ -259,11 +259,17 @@ class Paint_Draw(QWidget):
 class Main_Window(QMainWindow):
     def __init__(self):
         super(Main_Window, self).__init__()
+        with open('usr_data.txt', 'a+') as ff:
+            ff.seek(0)
+            print('usdata', ff.read(6))
+            if ff.read(1) == '':
+                ff.write("number:0\n")
         with open('usr_data.txt', 'r') as f1:
             gl_n = list(f1.readline())
         self.cnt_usr = int(gl_n[7])
         # print(type(gl_n), gl_n, type(self.cnt_usr), self.cnt_usr)
         self.load_text()
+        # print('abc')
 
         self.cb = QComboBox()
         self.cb.addItem("...")
