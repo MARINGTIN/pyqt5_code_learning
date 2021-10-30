@@ -20,7 +20,7 @@ from PyQt5.QtGui import *
 class Color_Get(QWidget):
     def __init__(self):
         super(Color_Get, self).__init__()
-        self.color_get1 = QColorDialog.getColor(Qt.white, self, "Select Color")
+        self.color_1 = QColorDialog.getColor(Qt.white, self, "Select Color")
 
 
 class Table_Window(QTableWidget):
@@ -175,16 +175,15 @@ class Tree_Data(QWidget):
         pattern_n = re.compile('(?<=usr:).*?(?=\|)')
         pattern_p = re.compile('(?<=pw:).*?(?=\|)')
         pattern_a = re.compile('(?<=age:).')
-        str_n = "".join(re.findall(pattern_n, "".join(self.h_data[c_u]), flags=0))
-        str_p = "".join(re.findall(pattern_p, "".join(self.h_data[c_u]), flags=0))
-        str_a = "".join(re.findall(pattern_a, "".join(self.h_data[c_u]), flags=0))
+        str_n = ''.join(re.findall(pattern_n, ''.join(self.h_data[c_u]), flags=0))
+        str_p = ''.join(re.findall(pattern_p, ''.join(self.h_data[c_u]), flags=0))
+        str_a = ''.join(re.findall(pattern_a, ''.join(self.h_data[c_u]), flags=0))
         print(str_n, str_p, str_a, type(str_n))
         return str_n, str_p, str_a
 
     def change_data(self):
         pass
     # 直接选中修改value的值，能把修改传递回usr_data.txt
-    # todo:tree_data_change->usr_data.txt
     # self.onTreeClicked()
 
 
@@ -193,49 +192,82 @@ class Agreement_Box(QWidget):
         super(Agreement_Box, self).__init__(parent)
         self.setWindowTitle("Agreement")
         self.resize(500, 200)
-        layout = QHBoxLayout()
+        l1 = QVBoxLayout()
+        l1_1 = QHBoxLayout()
         self.ag_txt = QLabel(content.agq_en)
         self.ag_cnt = QTextEdit()
         self.ag_cnt.setPlainText(content.agt_en)
-        self.ag_cnt.setReadOnly()
+        self.ag_cnt.setReadOnly(True)
 
-        self.b1 = QCheckBox("male")
-        self.b1.setChecked(True)
+        self.b1 = QCheckBox("I've already read above all, and I'm already aware of the risk.")
+        self.b1.setChecked(False)
         self.b1.stateChanged.connect(lambda: self.btnstate(self.b1))
         self.b2 = QCheckBox("")
         self.b2.toggled.connect(lambda: self.btnstate(self.b2))
-        self.setLayout(layout)
+        self.r1 = QRadioButton(content.qr1_en)
+        self.r1.toggled.connect(lambda: self.btnstate(self.r1))
+        self.r1.setEnabled(False)
+        self.r2 = QRadioButton(content.qr2_en)
+        self.r2.toggled.connect(lambda: self.btnstate(self.r2))
+
+        self.bb1 = QPushButton("Next")
+        self.bb1.setEnabled(False)
+        self.bb1.clicked.connect(self.bc_1)
+        self.bb2 = QPushButton("Cancel")
+        self.bb2.setEnabled(True)
+        self.bb2.clicked.connect(self.bc_2)
+
+        self.setLayout(l1)
         # self.setWindowTitle("checkbox demo")
-        layout.addWidget(self.ag_txt)
-        layout.addWidget(self.ag_cnt)
-        layout.addWidget(self.b1)
-        # layout.addWidget(self.b2)
+        l1.addWidget(self.ag_txt)
+        l1.addWidget(self.ag_cnt)
+        l1.addWidget(self.b1)
+        l1.addWidget(self.r1)
+        l1.addWidget(self.r2)
+        l1_1.addWidget(self.bb1)
+        l1_1.addWidget(self.bb2)
+        l1.addLayout(l1_1)
 
     def btnstate(self, b):
-        if b.text() == "Button1":
+        if b.text() == content.qr1_en:
             if b.isChecked():
-                print(b.text() + " is selected")
+                print("qr1 is selected")
+                self.bb1.setEnabled(True)
             else:
-                print(b.text() + " is deselected")
-        if b.text() == "Button2":
+                print("qr1 is deselected")
+                self.bb1.setEnabled(False)
+        if b.text() == content.qr2_en:
             if b.isChecked():
-                print(b.text() + " is selected")
+                print("qr2 is selected")
             else:
-                print(b.text() + " is deselected")
+                print("qr2 is deselected")
+        if b.text() == "I've already read above all, and I'm already aware of the risk.":
+            if b.isChecked():
+                self.r1.setEnabled(True)
+                self.b1.setDisabled(True)
+
+    def bc_1(self):
+        print("clicked 'Next'")
+        self.close()
+
+    def bc_2(self):
+        self.close()  # click 'Cancle'
+        main.close()
 
 
 class Paint_Draw(QWidget):
     def __init__(self):
         super(Paint_Draw, self).__init__()
+        self.qp = QPixmap(600, 600)
         self.setWindowTitle("Paint & Draw")
-        self.qp = QPixmap()
+        # self.qp = QPixmap()
         self.ui_layout()
         # self.paintEvent()
 
     def ui_layout(self):
         self.resize(600, 600)
-        self.qp = QPixmap(600, 600)
-        self.qp.fill(Qt.white)
+        self.qp.fill(Qt.red)
+        # self.qp.show()
 
     def refresh_size(self):
         # 画布尺寸刷新，以适应窗口拖动！
@@ -260,8 +292,7 @@ class Main_Window(QMainWindow):
     def __init__(self):
         super(Main_Window, self).__init__()
         with open('usr_data.txt', 'a+') as ff:
-            ff.seek(0)
-            print('usdata', ff.read(6))
+            ff.seek(0)  # 由于打开方式为'a+'默认指针为文件尾部，所以需要指针置零回到开头部分
             if ff.read(1) == '':
                 ff.write("number:0\n")
         with open('usr_data.txt', 'r') as f1:
@@ -467,9 +498,12 @@ class Main_Window(QMainWindow):
         toolbar_turn.setChecked(True)
         toolbar_turn.triggered.connect(self.toolbar_t)
 
+        agButton = QAction('O_A', self)
+        agButton.triggered.connect(self.open_ag)
+
         menu1 = menubar.addMenu(self.menu1_1)
         # menu1.addAction(QAction("New", self, self.table.show()))  # 带图标，文字
-        menu1.addAction(QAction("Open", self))
+        menu1.addAction(agButton)
         menu1.addAction("Close")
         menu1_1 = menu1.addMenu("Try")
         menu1_1.addAction("copy")
@@ -498,6 +532,10 @@ class Main_Window(QMainWindow):
             self.toolbar.setHidden(True)
         elif state:
             self.toolbar.setHidden(False)
+
+    def open_ag(self):
+        ag = Agreement_Box()
+        ag.show()
 
     '''
     | Save | Close | ... |

@@ -8,7 +8,6 @@ from all_content import *  # all content
 '''
 该功能是一个测试radiobutton和checkbox
 以及禁用和启用pushbutton的测试窗口
-将会在成熟后移植回主程序。
 '''
 
 
@@ -72,7 +71,7 @@ class Agreement_Box(QWidget):
                 self.b1.setDisabled(True)
 
     def bc_1(self):
-        print("clicked")
+        print("clicked 'Next'")
 
     def bc_2(self):
         self.close()
