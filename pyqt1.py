@@ -172,9 +172,12 @@ class Tree_Data(QWidget):
             i += 1
 
     def data_handle(self, c_u):
-        pattern_n = re.compile('(?<=usr:).*?(?=\|)')
-        pattern_p = re.compile('(?<=pw:).*?(?=\|)')
-        pattern_a = re.compile('(?<=age:).')
+        re1 = '(?<=usr:).*?(?=\|)'
+        re2 = '(?<=pw:).*?(?=\|)'
+        re3 = '(?<=age:).*?(?=\|)'
+        pattern_n = re.compile(re1)
+        pattern_p = re.compile(re2)
+        pattern_a = re.compile(re3)
         str_n = ''.join(re.findall(pattern_n, ''.join(self.h_data[c_u]), flags=0))
         str_p = ''.join(re.findall(pattern_p, ''.join(self.h_data[c_u]), flags=0))
         str_a = ''.join(re.findall(pattern_a, ''.join(self.h_data[c_u]), flags=0))
@@ -202,7 +205,7 @@ class Agreement_Box(QWidget):
         self.b1 = QCheckBox("I've already read above all, and I'm already aware of the risk.")
         self.b1.setChecked(False)
         self.b1.stateChanged.connect(lambda: self.btnstate(self.b1))
-        self.b2 = QCheckBox("")
+        self.b2 = QCheckBox('')
         self.b2.toggled.connect(lambda: self.btnstate(self.b2))
         self.r1 = QRadioButton(content.qr1_en)
         self.r1.toggled.connect(lambda: self.btnstate(self.r1))
@@ -339,18 +342,15 @@ class Main_Window(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle('Example of PyQt5')
-        self.resize(556, 270)
+        self.resize(556, 360)
+        self.setFixedSize(self.width(), self.height())
         wl = QVBoxLayout(self)
         h1 = QHBoxLayout()  # Text information & Text box
         h2 = QHBoxLayout()  # Button "password" & password (readonly)
         h3 = QHBoxLayout()  # Button "Age" & number (readonly)
         h4 = QHBoxLayout()  # Tips & ComboBox
         h5 = QHBoxLayout()  # Button "Clear", "Close", "Register", "Tree(Test)"
-        wl.addLayout(h1)
-        wl.addLayout(h2)
-        wl.addLayout(h3)
-        wl.addLayout(h4)
-        wl.addLayout(h5)
+
         for text_all in (self.text_usr, self.usr_name):
             h1.addWidget(text_all, 0, Qt.AlignCenter)
         for text_in in (self.btn3, self.text_pw):
@@ -361,6 +361,11 @@ class Main_Window(QMainWindow):
             h4.addWidget(combo_all)
         for btn in (self.btn1, self.btn2, self.btn5, self.btn6):
             h5.addWidget(btn)
+        wl.addLayout(h1)
+        wl.addLayout(h2)
+        wl.addLayout(h3)
+        wl.addLayout(h4)
+        wl.addLayout(h5)
 
         main_frame = QWidget()
         main_frame.setLayout(wl)
@@ -561,7 +566,7 @@ class Main_Window(QMainWindow):
 
     def writing_data(self):
         f = open('usr_data.txt', 'a')
-        tt = ['usr:', self.usr_name.text(), '|', 'pw:', self.text_pw.text(), '|', 'age:', self.num_get.text(), '\n']
+        tt = ['usr:', self.usr_name.text(), '|', 'pw:', self.text_pw.text(), '|', 'age:', self.num_get.text(), '|\n']
         str1 = ''.join(tt)
         f.write(str1)
         f.close()
