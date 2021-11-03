@@ -9,6 +9,7 @@ import sys
 import re
 import _thread
 import threading
+import time
 from time import *
 from all_content import *  # all content
 from PyQt5.Qt import *
@@ -294,6 +295,9 @@ class Paint_Draw(QWidget):
 class Main_Window(QMainWindow):
     def __init__(self):
         super(Main_Window, self).__init__()
+        self.setWindowTitle('Example of PyQt5')
+        self.resize(556, 360)
+        self.setFixedSize(self.width(), self.height())
         with open('usr_data.txt', 'a+') as ff:
             ff.seek(0)  # 由于打开方式为'a+'默认指针为文件尾部，所以需要指针置零回到开头部分
             if ff.read(1) == '':
@@ -341,16 +345,11 @@ class Main_Window(QMainWindow):
             ttt.setFont(self._fonts)
 
     def initUI(self):
-        self.setWindowTitle('Example of PyQt5')
-        self.resize(556, 360)
-        self.setFixedSize(self.width(), self.height())
-        wl = QVBoxLayout(self)
         h1 = QHBoxLayout()  # Text information & Text box
         h2 = QHBoxLayout()  # Button "password" & password (readonly)
         h3 = QHBoxLayout()  # Button "Age" & number (readonly)
         h4 = QHBoxLayout()  # Tips & ComboBox
         h5 = QHBoxLayout()  # Button "Clear", "Close", "Register", "Tree(Test)"
-
         for text_all in (self.text_usr, self.usr_name):
             h1.addWidget(text_all, 0, Qt.AlignCenter)
         for text_in in (self.btn3, self.text_pw):
@@ -361,6 +360,8 @@ class Main_Window(QMainWindow):
             h4.addWidget(combo_all)
         for btn in (self.btn1, self.btn2, self.btn5, self.btn6):
             h5.addWidget(btn)
+
+        wl = QVBoxLayout(self)
         wl.addLayout(h1)
         wl.addLayout(h2)
         wl.addLayout(h3)
@@ -370,7 +371,6 @@ class Main_Window(QMainWindow):
         main_frame = QWidget()
         main_frame.setLayout(wl)
         self.setCentralWidget(main_frame)
-        self.show()
 
     def creatButton(self):
         # self.bbb = QPushButton('')
@@ -381,7 +381,7 @@ class Main_Window(QMainWindow):
         self.btn5 = QPushButton(content.btn5_en)
         self.btn6 = QPushButton(content.btn6_en)
         self.btn1.clicked.connect(self.clear_btn)
-        self.btn2.clicked.connect(self.close)
+        self.btn2.clicked.connect(self.close_main)
         self.btn3.clicked.connect(self.pw_btn)
         self.btn4.clicked.connect(self.number_btn)
         self.btn5.clicked.connect(self.reg_btn)
@@ -400,6 +400,10 @@ class Main_Window(QMainWindow):
         self.text_pw.clear()
         self.num_get.clear()
         print("Clear!")
+
+    def close_main(self):
+        print('Close!')
+        self.close()
 
     def pw_btn(self):  # 输入：文本
         value, ok = QInputDialog.getText(self, "Password", self.text_tips.text(), QLineEdit.Normal, "Default_0")
@@ -547,8 +551,8 @@ class Main_Window(QMainWindow):
     '''
 
     def create_toolbar(self):
-        self.toolbar = self.addToolBar('')
-        self.toolbar.setStyle(QStyleFactory.create("Fusion"))
+        self.toolbar = self.addToolBar('1')
+        # self.toolbar.setStyle(QStyleFactory.create("Fusion"))
         paint_bar = QAction(QIcon('./icon/paint_icon.jpg'), "Paint", self)
         table_bar = QAction(QIcon('./icon/table_1.png'), "Table", self)
         self.toolbar.addAction(paint_bar)
@@ -556,9 +560,28 @@ class Main_Window(QMainWindow):
         self.toolbar.addSeparator()
         self.toolbar.actionTriggered[QAction].connect(self.toolbtnpressed)
 
+        self.toolbar2 = self.addToolBar('2')
+        blanc_1 = QAction('', self)
+        blanc_2 = QAction('', self)
+        self.toolbar2.addAction(blanc_1)
+        self.toolbar2.addAction(blanc_2)
+        self.toolbar2.setMovable(False)
+        # self.toolbar2.setEnabled(False)
+        self.toolbar2.setStyleSheet('QToolBar{background: red; spacing: 50px}')
+
+        self.toolbar3 = self.addToolBar('3')
+        close_bar = QAction(QIcon('./icon/py_icon.png'), "Close", self)
+        self.toolbar3.addAction(close_bar)
+        self.toolbar3.setMovable(False)
+
+        # self.create_toolbar = QAction()
+
+
+        
+
+
     def toolbtnpressed(self, a):
         print("Push the toolbar button:", a.text())
-
         if a.text() == "Table":
             self.open_table()
         elif a.text() == "Paint":

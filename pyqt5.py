@@ -6,6 +6,8 @@
 """
 import sys
 import re
+import time
+
 from all_content import *  # all content
 from PyQt5.Qt import *
 from PyQt5.QtWidgets import *
@@ -37,8 +39,10 @@ class Log_In(QWidget):
 
         action1 = QAction(self)
         action2 = QAction(self)
+        action3 = QAction(self)
         action1.setIcon(QIcon('./icon/user.png'))
         action2.setIcon(QIcon('./icon/lock.png'))
+        action3.setIcon(QIcon('./icon/X.png'))
 
         self.box_username = QLineEdit()
         self.box_username.setClearButtonEnabled(True)
@@ -52,10 +56,21 @@ class Log_In(QWidget):
         self.button_log.clicked.connect(self.log_in)
         self.button_can = QPushButton("取消")
         self.button_can.clicked.connect(self.can)
+
         for sT in (self.box_password, self.box_username, self.button_can, self.button_log):
             sT.setFont(ft.font_2)
             sT.setStyle(QStyleFactory.create("Fusion"))
             sT.setMinimumSize(310, 40)
+
+        self.button_X = QPushButton()
+        self.button_X.setMaximumWidth(37)
+        self.button_X.clicked.connect(self.can)
+        self.button_X.setIcon(QIcon('./icon/X.png'))
+        self.button_X.setIconSize(QSize(37, 37))
+        self.button_X.setStyleSheet('QPushButton{background-color: rgba(0, 0, 0, 0); border-radius: 5px}'
+                                    'QPushButton:hover{background-color: rgba(255, 255, 255, 100); border-radius: 5px}'
+                                    'QPushButton:pressed{background-color: rgb(255, 255, 255, 200);'
+                                    'border-radius: 5px}')
 
         self.initUI()
 
@@ -67,6 +82,7 @@ class Log_In(QWidget):
 
         for box_all in (self.box_username, self.box_password, self.button_log, self.button_can):
             h2.addWidget(box_all, 0, Qt.AlignHCenter)
+        wl.addWidget(self.button_X)
         wl.addStretch(10)
         wl.addLayout(h2)
         wl.addStretch(1)
@@ -75,9 +91,11 @@ class Log_In(QWidget):
     def log_in(self):
         str_username = self.box_username.text()
         str_password = self.box_password.text()
-        print('click Log_In', str_username, str_password, type(str_username))
+        print('click Log_In,\nusername:', str_username, ' | password:', str_password, type(str_username))
 
     def can(self):
+        print('Close after 0.5s!')
+        time.sleep(0.3)
         self.close()
 
     def mousePressEvent(self, event):
