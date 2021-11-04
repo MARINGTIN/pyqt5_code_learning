@@ -1,10 +1,3 @@
-"""
-2021—10-14
-今日处理内容：
-1). 正在处理中->创建一个线程，按时间打印一个图形
-2). 正在处理中->创建一个新窗口，实验画图功能
-3). 正在处理中->在画图板种创建多个button，实现快捷绘制
-"""
 import sys
 import re
 import _thread
@@ -262,16 +255,24 @@ class Agreement_Box(QWidget):
 class Paint_Draw(QWidget):
     def __init__(self):
         super(Paint_Draw, self).__init__()
+        self.resize(700, 700)
         self.qp = QPixmap(600, 600)
+        cc = QColor(236, 130, 183)
+        self.qp.fill(cc)
         self.setWindowTitle("Paint & Draw")
         # self.qp = QPixmap()
         self.ui_layout()
         # self.paintEvent()
 
     def ui_layout(self):
-        self.resize(600, 600)
-        self.qp.fill(Qt.red)
-        # self.qp.show()
+        lab1 = QLabel()
+        lab1.setPixmap(self.qp)
+        wl = QGridLayout()
+        wl.addWidget(lab1)
+        self.setLayout(wl)
+        # self.qp.setGeometry(0,0,600,600)
+
+    # self.qp.show()
 
     def refresh_size(self):
         # 画布尺寸刷新，以适应窗口拖动！
@@ -281,15 +282,17 @@ class Paint_Draw(QWidget):
         self.qp = QPixmap(w, h)
         self.qp.fill(Qt.white)
 
-    '''
-        def paintEvent(self, event):
-        c1 = 0
-        #while c1 <= 1.5:
-        time.sleep(0.001)
-        c1 += 0.001
-        print(c1)
+    def paint_lines(self, q_pl):
 
-    '''
+        pen = QPen(Qt.black, 4, Qt.SolidLine)
+        q_pl.setPen(pen)
+        q_pl.drawLine(20, 40, 250, 40)
+
+    def paintEvent(self, event):
+        q_p = QPainter()
+        q_p.begin(self)
+        self.paint_lines(q_p)
+        q_p.end()
 
 
 class Main_Window(QMainWindow):
@@ -575,10 +578,6 @@ class Main_Window(QMainWindow):
         self.toolbar3.setMovable(False)
 
         # self.create_toolbar = QAction()
-
-
-        
-
 
     def toolbtnpressed(self, a):
         print("Push the toolbar button:", a.text())
