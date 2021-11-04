@@ -37,6 +37,8 @@ class Log_In(QWidget):
         palette.setBrush(QPalette.Background, QBrush(QPixmap("./icon/background.png")))
         self.setPalette(palette)
 
+        self.m_conut = 0  # 计数（mouseMoveEvent)
+
         action1 = QAction(self)
         action2 = QAction(self)
         action3 = QAction(self)
@@ -110,6 +112,8 @@ class Log_In(QWidget):
         positionX = self.frameGeometry().x() + moveX
         positionY = self.frameGeometry().y() + moveY  # 计算移动后主窗口在桌面的位置
         self.move(positionX, positionY)  # 移动主窗口
+        print(self.m_conut)
+        self.m_conut += 1
 
 
 class Main_Window(QMainWindow):
@@ -120,18 +124,35 @@ class Main_Window(QMainWindow):
         self.setFixedSize(self.width(), self.height())
         self.button_ol = QPushButton("Log In")
         self.button_ol.clicked.connect(self.btn_ol)
-        # self.content_main = QLabel("")
+        self.button_tt = QPushButton("TEST")
+        self.button_tt.clicked.connect(self.test_int)
+
+        self.int_test = QLineEdit()
+        test_validator = QIntValidator(self)
+        test_validator.setRange(-1600, 255)
+        self.int_test.setValidator(test_validator)
+        self.b = self.int_test.validator()
+
+        # cc = self.int_test.text()
+        # self.b = test_validator.validate(cc, 0)
+
         self.initUI()
         '''
         screen = QDesktopWidget().screenGeometry()
         print(screen.width(), screen.height())
         '''
 
+    # def MyValidator.QIntValidator()
+
     def initUI(self):
         wl = QVBoxLayout(self)
         h1 = QHBoxLayout()
         h1.addWidget(self.button_ol, 0, Qt.AlignCenter)
+        h2 = QHBoxLayout()
+        h2.addWidget(self.int_test)
+        h2.addWidget(self.button_tt)
         wl.addLayout(h1)
+        wl.addLayout(h2)
         main_lay = QWidget()
         main_lay.setLayout(wl)
         self.setCentralWidget(main_lay)
@@ -140,6 +161,12 @@ class Main_Window(QMainWindow):
     def btn_ol(self):
         self.l_i = Log_In()
         self.l_i.show()
+
+    def test_int(self):
+        a = self.int_test.text()
+
+        print(a, type(a))
+        print(self.b, type(self.b))
 
 
 if __name__ == "__main__":
