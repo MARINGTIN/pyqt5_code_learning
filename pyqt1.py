@@ -58,6 +58,7 @@ list_data = [0.0000, 0.0000, 0.0100, 0.0198, 0.0296, 0.0392, 0.0488, 0.0583, 0.0
              1.7579, 1.7596, 1.7613, 1.7630, 1.7647, 1.7664, 1.7681, 1.7699, 1.7716, 1.7733, 1.7750, 1.7766, 1.7783,
              1.7800, 1.7817, 1.7834, 1.7851, 1.7867, 1.7884, 1.7901]
 
+
 class Color_Get(QWidget):
     def __init__(self):
         super(Color_Get, self).__init__()
@@ -299,17 +300,19 @@ class Agreement_Box(QWidget):
         main.close()
 
 
-class Paint_Draw(QWidget):
+class PaintArea(QWidget):
     def __init__(self):
-        super(Paint_Draw, self).__init__()
+        super(PaintArea, self).__init__()
         self.setWindowTitle("Main Window")
         self.resize(1760, 800)
         self.setMinimumSize(704, 320)
-        self.clicked_point = QPoint(800, 400)
+        # self.antialised = True
+        self.clicked_point = QPoint(0, 0)
         self.state_clicktimes = 0
+        self.clickedtimes = 0
+        self.ori_w = 0
+        self.ori_h = 0
 
-        self.ori_w = self.size().width()  # 原始宽度
-        self.ori_h = self.size().height()  # 原始高度
         color_blue = QColor(110, 168, 210)
         color_green = QColor(33, 85, 100)
         color_pink = QColor(255, 224, 230)
@@ -336,19 +339,6 @@ class Paint_Draw(QWidget):
         self.pen_infor.setColor(Qt.black)
         self.pen_infor.setWidth(1)
 
-        '''         
-         -------------------------------
-        |       10              10      |  
-        | 1 ---------       ---------   |  
-        | 0| |- ①   | 10  |  ②      |1 | 
-        |   ---------       --------- 0 |  
-        |       10            10        |
-        |    ---------      ---------   |
-        |   |    ③    |   |    ④    |  | 
-        |    ---------      ---------   |  
-         -------------------------------                 
-        '''
-
     def paintEvent(self, event):
         self.w = self.size().width()
         self.h = self.size().height()
@@ -364,6 +354,7 @@ class Paint_Draw(QWidget):
             qpainter.begin(self)
             self.pen1 = QPen(Qt.green, 3)
         elif self.state_clicktimes == 0:
+            qpainter.begin(self)
             self.pen1 = QPen(Qt.black, 3)
         qpainter.setPen(self.pen1)
         self.draw_whole(qpainter)
@@ -376,12 +367,23 @@ class Paint_Draw(QWidget):
 
         mouse_x = self.clicked_point.x()
         mouse_y = self.clicked_point.y()
+
+        rect_blanc = self.rect()
+        rect_blanc.setRect(10, 10, self.w - 20, self.h - 20)
+        # print('mouse is here:', mouse_x, mouse_y)
+        # print('w, h =', self.w, self.h)
+        # print('draw background, the state_clicktimes =', self.state_clicktimes)
         # 根据鼠标点击后所在空间位置，进行比例放缩，以防止窗口大小导致绘制区域改变
         if (self.state_clicktimes == 1) or (self.state_clicktimes == 2):
             mouse_x = int((mouse_x / self.refresh_w) * self.w)
             mouse_y = int((mouse_y / self.refresh_h) * self.h)
-        print('实时鼠标等比放缩位置:', mouse_x, mouse_y)
-        print('窗口实时大小:', self.w, self.h)
+        elif self.state_clicktimes == 0:
+            print('进入判定0')
+            qp.fillRect(rect_blanc, Qt.white)
+            qp.drawRoundedRect(rect_blanc, 10, 10)
+
+        # print('实时鼠标等比放缩位置:', mouse_x, mouse_y)
+        # print('窗口实时大小:', self.w, self.h)
 
         rect1 = self.rect()
         rect1.setRect(10, 10, wr, hr)
@@ -391,8 +393,8 @@ class Paint_Draw(QWidget):
         rect3.setRect(10, 20 + hr, wr, hr)
         rect4 = self.rect()
         rect4.setRect(20 + wr, 20 + hr, wr, hr)
-        for fill_white in (rect1, rect2, rect3, rect4):
-            qp.fillRect(fill_white, Qt.white)
+        # for fill_white in (rect1, rect2, rect3, rect4):
+        #     qp.fillRect(fill_white, Qt.white)
 
         # 为保证所有函数依赖同一个坐标系，需要找出数据和数据量各自的最大值
         # 并根据数据和数据量的最大值，压缩/扩张数据到坐标轴上
@@ -401,27 +403,33 @@ class Paint_Draw(QWidget):
         m_list = [max(list_data), max(list_data2)]  # 用这个列表列出不同数据组最大的数
         self.trans_x = ((self.w - 90) / 2 - 100) / max(l_list)
         self.trans_y = ((self.h - 150) / 4) / max(m_list)
+        if mouse_x != 0 and mouse_y != 0:
+            print('进来了？')
+            for fill_white in (rect1, rect2, rect3, rect4):
+                qp.fillRect(fill_white, Qt.white)
+            if (mouse_x < self.w / 2) and (mouse_y < self.h / 2):
+                qp.drawRoundedRect(rect1, 10, 10)
+                self.draw_reference(qp, 1)
+                self.draw_axis(qp, 1, wr, hr)
+                self.draw_character(qp, 1)
+            elif (mouse_x > self.w / 2) and (mouse_y < self.h / 2):
+                qp.drawRoundedRect(rect2, 10, 10)
+                self.draw_reference(qp, 2)
+                self.draw_axis(qp, 2, wr, hr)
+                self.draw_character(qp, 2)
+            elif (mouse_x < self.w / 2) and (mouse_y > self.h / 2):
+                qp.drawRoundedRect(rect3, 10, 10)
+                self.draw_reference(qp, 3)
+                self.draw_axis(qp, 3, wr, hr)
+                self.draw_character(qp, 3)
+            elif (mouse_x > self.w / 2) and (mouse_y > self.h / 2):
+                qp.drawRoundedRect(rect4, 10, 10)
+                self.draw_reference(qp, 4)
+                self.draw_axis(qp, 4, wr, hr)
+                self.draw_character(qp, 4)
 
-        if (mouse_x < self.w / 2) and (mouse_y < self.h / 2):
-            qp.drawRoundedRect(rect1, 10, 10)
-            self.draw_reference(qp, 1)
-            self.draw_axis(qp, 1, wr, hr)
-            self.draw_character(qp, 1)
-        elif (mouse_x > self.w / 2) and (mouse_y < self.h / 2):
-            qp.drawRoundedRect(rect2, 10, 10)
-            self.draw_reference(qp, 2)
-            self.draw_axis(qp, 2, wr, hr)
-            self.draw_character(qp, 2)
-        elif (mouse_x < self.w / 2) and (mouse_y > self.h / 2):
-            qp.drawRoundedRect(rect3, 10, 10)
-            self.draw_reference(qp, 3)
-            self.draw_axis(qp, 3, wr, hr)
-            self.draw_character(qp, 3)
-        elif (mouse_x > self.w / 2) and (mouse_y > self.h / 2):
-            qp.drawRoundedRect(rect4, 10, 10)
-            self.draw_reference(qp, 4)
-            self.draw_axis(qp, 4, wr, hr)
-            self.draw_character(qp, 4)
+        elif (mouse_x == 0) and (mouse_y == 0):
+            print('没进来啊')
 
     def draw_axis(self, qp, square, wr, hr):
         qp.setPen(self.pen_axis)
@@ -430,8 +438,7 @@ class Paint_Draw(QWidget):
         line2_l = line1_r + 40  # line2左端点水平坐标
         line2_r = self.w - 25  # line2右端点水平坐标
         line3_h = int(3 * (self.h - 30) / 4 + 20)  # line3竖直坐标
-        upright_h = int((self.h - 110) / 2)  # y轴长度，即函数绘制区域总高度
-        # print('AREA:', square, ' 绘制区域竖直全高度：', upright_h)
+        upright_h = int((self.h - 110) / 2)  # 实线y轴长度，即函数绘制区域总高度
         if square == 1:
             qp.drawLine(25, line1_h, line1_r, line1_h)
             qp.drawLine(25, 30, 25, 30 + upright_h)
@@ -501,13 +508,13 @@ class Paint_Draw(QWidget):
         qp.setPen(self.pen_refer)
         m1 = '%.2f' % max(list_data)
         m2 = '%.2f' % max(list_data2)
-        # 五条参考线，150等分  (self.w - 90) / 2
-        # i = 150
-        # print('test, self.w, self.ori_w:', self.w, self.ori_w)
-        tran_rw = (self.w - 90) / (self.ori_w - 90)  # 参考线位置收缩
-        tran_rh = (self.h - 150) / (self.ori_h - 150)
-        for i in (150, 300, 450, 600, 750):
-            h = int((self.h - 50) / 2)  # 参考线长
+        tran_rw = ((self.w - 90) - 200) / ((self.ori_w - 90) - 200)  # 参考线位置收缩
+        tran_rh = (self.h - 90) / (self.ori_h - 90)
+        # 为了便于理解，这里之间通过计算给出相邻两条参考线之间的距离大小distance_v (Vertical) & ditance_h (Horizontal)
+        distance_h = int((self.ori_h - 90) / 16)
+        distance_v = int(((self.ori_w - 90) / 2 - 100) / 5)  # (self.w - 90) / 2 - 100)
+        for i in (distance_v, 2 * distance_v, 3 * distance_v, 4 * distance_v, 5 * distance_v):
+            h = int((self.h - 90) / 2)  # 参考线长
             incre = 0
             r = 0
             if (self.state_clicktimes == 1) or (self.state_clicktimes == 2):
@@ -519,13 +526,13 @@ class Paint_Draw(QWidget):
                     r = r2
                 # --- #
                 if (square == 3) or (square == 4):
-                    incre = h + 20
-                qp.drawLine(r, 15 + incre, r, 15 + h + incre)
-        for i in (42, 84, 126, 168):
+                    incre = h + 40
+                qp.drawLine(r, 25 + incre, r, 25 + h + incre)
+        for i in (distance_h, 2 * distance_h, 3 * distance_h, 4 * distance_h):
             base = 0
             base_x = 0
             base1 = int((self.h - 30) / 4 + 10)
-            base2 = int(self.h-(self.h-30)/4-10)
+            base2 = int(self.h - (self.h - 30) / 4 - 10)
             long = int((self.w - 90) / 2)
             if (square == 1) or (square == 2):
                 base = base1
@@ -535,28 +542,34 @@ class Paint_Draw(QWidget):
                 base_x = 10 + int((self.w - 30) / 2)
             qp.drawLine(25 + base_x, base + int(i * tran_rh), 25 + long + base_x, base + int(i * tran_rh))
             qp.drawLine(25 + base_x, base - int(i * tran_rh), 25 + long + base_x, base - int(i * tran_rh))
-            if i == 168:
+            if i == 4 * distance_h:
                 qp.setPen(self.pen_infor)
                 qp.setFont(QFont('方正FW筑紫A圆 简 D', 14))
-                qp.drawText(35 + base_x, base + int(120), 450, 80, 0, '   A:\nAA:')
-                qp.drawText(90 + base_x, base + int(120), 450, 80, 0, m2 + '\n' + m1)
+                qp.drawText(35 + base_x, base + int(i * tran_rh) - 45, 450, 80, 0, '   A:\nAA:')
+                qp.drawText(90 + base_x, base + int(i * tran_rh) - 45, 450, 80, 0, m2 + '\n' + m1)
 
 
     def mousePressEvent(self, event):
+        self.clickedtimes += 1
+        if self.clickedtimes == 1:
+            self.ori_w = self.size().width()
+            self.ori_h = self.size().height()
+
         self.state_clicktimes = 1
         self.pressX = event.x()  # 记录鼠标按下的时候的坐标
         self.pressY = event.y()
         self.clicked_point = event.pos()
         self.refresh_w = self.size().width()
         self.refresh_h = self.size().height()
-        print('mouse clicked here: ', self.pressX, self.pressY)
+        print('mouse clicked here:', event.x(), event.y())
+        print('Now draw area size:', self.w, self.h)
+        print('Original size:', self.ori_w, self.ori_h)
         self.update()
 
     def mouseDoubleClickEvent(self, event):
         self.state_clicktimes = 2
         self.clicked_point = event.pos()
         self.update()
-    
 
 
 class Main_Window(QMainWindow):
@@ -863,7 +876,7 @@ class Main_Window(QMainWindow):
 
     def paint_sth(self):
         # todo: here, we create a button which when you click it will create a pixmap and you can draw sth. on it.
-        self.p_d = Paint_Draw()
+        self.p_d = PaintArea()
         self.p_d.show()
 
     # def print_time(threadName):pass
