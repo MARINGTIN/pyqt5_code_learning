@@ -11,7 +11,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import numpy as np
 
-
+# import matplotlib.pyplot as plot
 
 list_data2 = [0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09,
               0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19,
@@ -26,7 +26,6 @@ list_data2 = [0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09,
               4.50, 4.51, 4.52, 4.53, 4.58, 4.59,
               4.60, 4.61, 4.62, 4.63, 4.64, 4.65, 4.66, 4.67, 4.68, 4.69,
               4.70, 4.71, 4.72, 4.73, 4.74, 4.75, 4.76, 4.77, 4.78]
-
 
 list_data = [0.0000, 0.0000, 0.0100, 0.0198, 0.0296, 0.0392, 0.0488, 0.0583, 0.0677,
              0.0770, 0.0862, 0.0953, 0.1044, 0.1133, 0.1222, 0.1310, 0.1398, 0.1484, 0.1570,
@@ -63,6 +62,14 @@ list_data = [0.0000, 0.0000, 0.0100, 0.0198, 0.0296, 0.0392, 0.0488, 0.0583, 0.0
              1.7800, 1.7817, 1.7834, 1.7851, 1.7867, 1.7884, 1.7901]
 
 list_data3 = [885, 886, 899, 840, 830]
+list_data4 = [0, 0, 0, 0, 0, 63, 126, 189, 0, 315, 378, 441, 504, 567, 630,
+              652, 674, 696, 718, 740, 762, 784, 806, 828, 850,
+              851.5, 853.0, 854.5, 856.0, 857.5, 859.0, 860.5, 862.0, 863.5,
+              865, 866.1, 867.2, 868.3, 869.4, 870.5, 871.6, 872.7, 873.8, 874.9, 876,
+              0, 840, 839, 838, 837, 836, 835, 834, 833, 832, 831, 830,
+              829, 828, 827, 826, 825, 824, 823, 822, 821, 820,
+              808, 796, 784, 772, 760, 748, 736, 724, 712, 700,
+              690, 680, 670, 660, 650, 640, 630, 620, 610, 600]
 
 
 class Color_Get(QWidget):
@@ -323,6 +330,7 @@ class PaintArea(QWidget):
         color_green = QColor(33, 85, 100)
         color_pink = QColor(255, 224, 230)
         color_gray = QColor(170, 170, 174)
+        color_cao = QColor(150, 185, 125)
         self.pen_func1 = QPen()
         self.pen_func1.setColor(color_blue)
         self.pen_func1.setWidth(3)
@@ -330,7 +338,11 @@ class PaintArea(QWidget):
         self.pen_func2 = QPen()
         self.pen_func2.setColor(color_green)
         self.pen_func2.setWidth(3)
-        # self.pen_func3 = QPen()
+
+        self.pen_func3 = QPen()
+        self.pen_func3.setColor(color_cao)
+        self.pen_func3.setWidth(4)
+
         self.pen_axis = QPen()
         self.pen_axis.setColor(color_gray)
         self.pen_axis.setWidth(2)
@@ -479,12 +491,60 @@ class PaintArea(QWidget):
             qp.setPen(self.pen_func2)
             self.draw_function(qp, 3, line3_h, 'A', 25, list_data2)
         elif square == 4:
+            # todo: 在这里执行函数修复测试
             qp.drawLine(line2_l, line3_h, line2_r, line3_h)
             qp.drawLine(35 + wr, 40 + hr, 35 + wr, 40 + hr + upright_h)
-            qp.setPen(self.pen_func1)
-            self.draw_function(qp, 4, line3_h, 'AA', line2_l, list_data)
-            qp.setPen(self.pen_func2)
-            self.draw_function(qp, 4, line3_h, 'A', line2_l, list_data2)
+
+            count = 0
+            a = np.array(list_data4)
+            # print('list_data4=', a)
+            list_storage = a
+            while count <= (len(list_data4) - 5):
+                # print('count=', count)
+                s = slice(count, count+5, 1)
+                count += 1
+                b = a[s]
+                k1 = b[1] - b[0]
+                k2 = b[2] - b[1]
+                k3 = b[3] - b[2]
+                k4 = b[4] - b[3]
+                # print('k=', k1, k2, k3, k4)
+                state1 = 0  # 第三个点是否凸起或凹陷，0-否，1-是.
+                state2 = 0  # 第三个点两侧斜率是否异常大，0-否，1-是.
+                if k2 * k3 < 0:
+                    print('第三个点凸起或凹陷，count=', count-1)
+                    state1 = 1
+
+                if k1 < 0:
+                    k1 = abs(k1)
+                if k2 < 0:
+                    k2 = abs(k2)
+                if k3 < 0:
+                    k3 = abs(k3)
+                if k4 < 0:
+                    k4 = abs(k4)
+
+                # print('取绝对值k=', k1, k2, k3, k4)
+                if (k2 + k3) > 3 * (k1 + k4):
+                    print('第三个点两侧斜率异常大，count=', count-1)
+                    state2 = 1
+
+                if state1 == 1 & state2 == 1:
+                    #  两个条件均满足，则执行修复
+                    print("条件满足，进入修复")
+                    list_storage[count+1] = (b[1] + b[3]) / 2
+                    print('修复后list_storage=', list_storage)
+
+            if self.state_clicktimes == 1:
+                qp.setPen(self.pen_func1)
+                self.draw_function(qp, 4, line3_h, 'AA', line2_l, list_data3)
+                qp.setPen(self.pen_func2)
+                self.draw_function(qp, 4, line3_h, 'A', line2_l, list_data4)
+            elif self.state_clicktimes == 2:
+                qp.setPen(self.pen_func1)
+                self.draw_function(qp, 4, line3_h, 'AA', line2_l, list_data3)
+                qp.setPen(self.pen_func3)
+                self.draw_function(qp, 4, line3_h, 'X', line2_l, list_storage)
 
     def draw_character(self, qp, square):
         qp.setFont(QFont('方正FW筑紫A圆 简 D', 20))
@@ -507,6 +567,9 @@ class PaintArea(QWidget):
         final_xs = 0
         final_ys = 0
         while step <= len(data) - 2:
+            if square == 4:
+                self.trans_x = ((self.w - 90) / 2 - 100) / len(list_data4)
+                self.trans_y = ((self.h - 150) / 4) / 1000
             final_ys = int(data[step] * self.trans_y)  # 起始点最终绘制离轴距离
             final_ye = int(data[step + 1] * self.trans_y)  # 尾端点最终绘制离轴距离
             final_xs = int(step * self.trans_x)  # 起始点x轴坐标
@@ -566,7 +629,6 @@ class PaintArea(QWidget):
                 qp.drawText(35 + base_x, base + int(i * tran_rh) - 45, 450, 80, 0, '   A:\nAA:')
                 qp.drawText(90 + base_x, base + int(i * tran_rh) - 45, 450, 80, 0, m2 + '\n' + m1)
 
-
     def mousePressEvent(self, event):
         self.clickedtimes += 1
         if self.clickedtimes == 1:
@@ -597,10 +659,17 @@ class DataRepair(QWidget):
         self.resize(880, 480)
 
         # self.plotlib=
-
+        # todo: matplotlib模块不能正常加载，暂时不处理这个了。。。
         self.data_input = QLineEdit('')
         self.data_location = QComboBox()
+        self.data_location.addItem('1')
+        self.data_location.addItem('2')
+        self.data_location.addItem('3')
+        self.data_location.addItem('4')
+        self.data_location.addItem('5')
+
         self.change_button = QPushButton('Change!')
+        self.change_button.clicked.connect(self.change_data)
 
         self.initUI()
 
@@ -616,6 +685,9 @@ class DataRepair(QWidget):
         main_frame = QWidget()
         main_frame.setLayout(wl)
         self.setLayout(wl)
+
+    def change_data(self):
+        print("change!")
 
 
 class Main_Window(QMainWindow):
