@@ -9,6 +9,8 @@ from PyQt5.Qt import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+import numpy as np
+
 
 list_data2 = [0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09,
               0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19,
@@ -57,6 +59,8 @@ list_data = [0.0000, 0.0000, 0.0100, 0.0198, 0.0296, 0.0392, 0.0488, 0.0583, 0.0
              1.7352, 1.7370, 1.7387, 1.7405, 1.7422, 1.7440, 1.7457, 1.7475, 1.7492, 1.7509, 1.7527, 1.7544, 1.7561,
              1.7579, 1.7596, 1.7613, 1.7630, 1.7647, 1.7664, 1.7681, 1.7699, 1.7716, 1.7733, 1.7750, 1.7766, 1.7783,
              1.7800, 1.7817, 1.7834, 1.7851, 1.7867, 1.7884, 1.7901]
+
+list_data3 = [885, 886, 899, 840, 830]
 
 
 class Color_Get(QWidget):
@@ -330,8 +334,8 @@ class PaintArea(QWidget):
         self.pen_axis.setWidth(2)
 
         self.pen_refer = QPen()
-        self.pen_refer.setStyle(Qt.CustomDashLine)
-        self.pen_refer.setDashPattern([1, 2, 1, 2])
+        self.pen_refer.setStyle(Qt.DotLine)
+        # self.pen_refer.setDashPattern([1, 2, 1, 2])
         self.pen_refer.setColor(color_gray)
         self.pen_refer.setWidth(2)
 
@@ -362,8 +366,8 @@ class PaintArea(QWidget):
         qpainter.end()
 
     def draw_whole(self, qp):
-        wr = int((self.w - 30) / 2)  # rect 宽度width
-        hr = int((self.h - 30) / 2)  # rect 高度height
+        wr = int((self.w - 30) / 2)  # func_rect 宽度width
+        hr = int((self.h - 30) / 2)  # func_rect 高度height
 
         mouse_x = self.clicked_point.x()
         mouse_y = self.clicked_point.y()
@@ -378,9 +382,22 @@ class PaintArea(QWidget):
             mouse_x = int((mouse_x / self.refresh_w) * self.w)
             mouse_y = int((mouse_y / self.refresh_h) * self.h)
         elif self.state_clicktimes == 0:
-            print('进入判定0')
+            # 未点击之前，显示白底黑框加“点击开始绘制”，以及分区
             qp.fillRect(rect_blanc, Qt.white)
+            qp.setFont(QFont('', 15))
             qp.drawRoundedRect(rect_blanc, 10, 10)
+            x_1 = int(self.w / 4)
+            x_2 = int(3 * self.w / 4)
+            y_1 = int(self.h / 4)
+            y_2 = int(3 * self.h / 4)
+            # qp.drawText(30, 20, 300, 50, 0, '申请编号:Q20210525 姓名:质控CK2')
+            qp.drawText(x_1 - 45, y_1 - 12, 100, 100, 0, 'AREA 1')
+            qp.drawText(x_2 - 45, y_1 - 12, 100, 100, 0, 'AREA 2')
+            qp.drawText(x_1 - 45, y_2 - 12, 100, 100, 0, 'AREA 3')
+            qp.drawText(x_2 - 45, y_2 - 12, 100, 100, 0, 'AREA 4')
+            qp.setPen(self.pen_refer)
+            qp.drawLine(12, 2 * y_1, self.w - 12, 2 * y_1)
+            qp.drawLine(2 * x_1, 12, 2 * x_1, self.h - 12)
 
         # print('实时鼠标等比放缩位置:', mouse_x, mouse_y)
         # print('窗口实时大小:', self.w, self.h)
@@ -404,7 +421,6 @@ class PaintArea(QWidget):
         self.trans_x = ((self.w - 90) / 2 - 100) / max(l_list)
         self.trans_y = ((self.h - 150) / 4) / max(m_list)
         if mouse_x != 0 and mouse_y != 0:
-            print('进来了？')
             for fill_white in (rect1, rect2, rect3, rect4):
                 qp.fillRect(fill_white, Qt.white)
             if (mouse_x < self.w / 2) and (mouse_y < self.h / 2):
@@ -570,6 +586,34 @@ class PaintArea(QWidget):
         self.state_clicktimes = 2
         self.clicked_point = event.pos()
         self.update()
+
+
+class DataRepair(QWidget):
+    def __init__(self):
+        super(DataRepair, self).__init__()
+        self.setWindowTitle('Abnormal Data Repair')
+        self.resize(880, 480)
+
+        # self.plotlib=
+
+        self.data_input = QLineEdit('')
+        self.data_location = QComboBox()
+        self.change_button = QPushButton('Change!')
+
+        self.initUI()
+
+    def initUI(self):
+        wl = QVBoxLayout()
+        h1 = QHBoxLayout()
+        h1.addWidget(self.data_input)
+        h1.addWidget(self.data_location)
+        h1.addWidget(self.change_button)
+        # wl.addWidget
+        wl.addLayout(h1)
+
+        main_frame = QWidget()
+        main_frame.setLayout(wl)
+        self.setLayout(wl)
 
 
 class Main_Window(QMainWindow):
@@ -851,8 +895,11 @@ class Main_Window(QMainWindow):
 
         self.toolbar3 = self.addToolBar('3')
         close_bar = QAction(QIcon('./icon/py_icon.png'), "Close", self)
+        data_bar = QAction(QIcon('./icon/paint_icon.jpg'), "Data Repair", self)
         self.toolbar3.addAction(close_bar)
+        self.toolbar3.addAction(data_bar)
         self.toolbar3.setMovable(False)
+        self.toolbar3.actionTriggered[QAction].connect(self.toolbtnpressed)
 
         # self.create_toolbar = QAction()
 
@@ -862,6 +909,9 @@ class Main_Window(QMainWindow):
             self.open_table()
         elif a.text() == "Paint":
             self.paint_sth()
+        elif a.text() == "Data Repair":
+            print('开始数据修复模块')
+            self.data_re()
 
     def writing_data(self):
         f = open('usr_data.txt', 'a')
@@ -875,9 +925,12 @@ class Main_Window(QMainWindow):
         self.rtree.show()
 
     def paint_sth(self):
-        # todo: here, we create a button which when you click it will create a pixmap and you can draw sth. on it.
         self.p_d = PaintArea()
         self.p_d.show()
+
+    def data_re(self):
+        self.re_data = DataRepair()
+        self.re_data.show()
 
     # def print_time(threadName):pass
     '''

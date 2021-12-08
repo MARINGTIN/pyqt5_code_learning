@@ -41,10 +41,10 @@ class Log_In(QWidget):
 
         action1 = QAction(self)
         action2 = QAction(self)
-        action3 = QAction(self)
+        # action3 = QAction(self)
         action1.setIcon(QIcon('./icon/user.png'))
         action2.setIcon(QIcon('./icon/lock.png'))
-        action3.setIcon(QIcon('./icon/X.png'))
+        # action3.setIcon(QIcon('./icon/X.png'))
 
         self.box_username = QLineEdit()
         self.box_username.setClearButtonEnabled(True)
