@@ -65,8 +65,8 @@ list_data3 = [885, 886, 899, 840, 830]
 list_data4 = [0, 0, 0, 0, 0, 63, 126, 189, 0, 315, 378, 441, 504, 567, 630,
               652, 674, 696, 718, 740, 762, 784, 806, 828, 850,
               851.5, 853.0, 854.5, 856.0, 857.5, 859.0, 860.5, 862.0, 863.5,
-              865, 866.1, 867.2, 868.3, 869.4, 870.5, 871.6, 872.7, 873.8, 874.9, 876,
-              0, 840, 839, 838, 837, 836, 835, 834, 833, 832, 831, 830,
+              865, 866.1, 867.2, 868.3, 869.4, 870.5, 871.6, 872.7, 873.8, 874.9, 890,
+              0, 0, 0, 0, 0, 836, 835, 834, 833, 832, 831, 830,
               829, 828, 827, 826, 825, 824, 823, 822, 821, 820,
               808, 796, 784, 772, 760, 748, 736, 724, 712, 700,
               690, 680, 670, 660, 650, 640, 630, 620, 610, 600]
@@ -501,7 +501,7 @@ class PaintArea(QWidget):
             list_storage = a
             while count <= (len(list_data4) - 5):
                 # print('count=', count)
-                s = slice(count, count+5, 1)
+                s = slice(count, count + 5, 1)
                 count += 1
                 b = a[s]
                 k1 = b[1] - b[0]
@@ -512,41 +512,38 @@ class PaintArea(QWidget):
                 state1 = 0  # 第三个点是否凸起或凹陷，0-否，1-是.
                 state2 = 0  # 第三个点两侧斜率是否异常大，0-否，1-是.
                 if k2 * k3 < 0:
-                    print('第三个点凸起或凹陷，count=', count-1)
+                    # 第三个点凸起或凹陷
                     state1 = 1
 
-                if k1 < 0:
-                    k1 = abs(k1)
-                if k2 < 0:
-                    k2 = abs(k2)
-                if k3 < 0:
-                    k3 = abs(k3)
-                if k4 < 0:
-                    k4 = abs(k4)
+                k1 = abs(k1)
+                k2 = abs(k2)
+                k3 = abs(k3)
+                k4 = abs(k4)
 
-                # print('取绝对值k=', k1, k2, k3, k4)
-                if (k2 + k3) > 3 * (k1 + k4):
-                    print('第三个点两侧斜率异常大，count=', count-1)
+                if (k2 + k3) > 3 * (k1 + k4) and (k3 != 0 and k4 != 0):
+                    # 判断条件有：斜率异常大，后三点不是直线，均满足则确认
+                    # print('第三个点两侧斜率异常大，count=', count-1)
                     state2 = 1
 
-                if state1 == 1 & state2 == 1:
+                if state1 == 1 and state2 == 1:
                     #  两个条件均满足，则执行修复
-                    print("条件满足，进入修复")
-                    list_storage[count+1] = (b[1] + b[3]) / 2
-                    print('修复后list_storage=', list_storage)
+                    print("条件均满足判断，进行修复！！！")
+                    list_storage[count + 1] = (b[1] + b[3]) / 2
+                    # print('修复后list_storage=', list_storage)
 
             if self.state_clicktimes == 1:
-                qp.setPen(self.pen_func1)
-                self.draw_function(qp, 4, line3_h, 'AA', line2_l, list_data3)
+                # qp.setPen(self.pen_func1)
+                # self.draw_function(qp, 4, line3_h, 'AA', line2_l, list_data3)
                 qp.setPen(self.pen_func2)
                 self.draw_function(qp, 4, line3_h, 'A', line2_l, list_data4)
             elif self.state_clicktimes == 2:
-                qp.setPen(self.pen_func1)
-                self.draw_function(qp, 4, line3_h, 'AA', line2_l, list_data3)
+                # qp.setPen(self.pen_func1)
+                # self.draw_function(qp, 4, line3_h, 'AA', line2_l, list_data3)
                 qp.setPen(self.pen_func3)
                 self.draw_function(qp, 4, line3_h, 'X', line2_l, list_storage)
 
     def draw_character(self, qp, square):
+
         qp.setFont(QFont('方正FW筑紫A圆 简 D', 20))
         if square == 1:
             qp.drawText(100, 100, 150, 100, 0, 'AREA Ⅰ')
