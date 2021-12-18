@@ -491,7 +491,7 @@ class PaintArea(QWidget):
             qp.setPen(self.pen_func2)
             self.draw_function(qp, 3, line3_h, 'A', 25, list_data2)
         elif square == 4:
-            # todo: 在这里执行函数修复测试
+            # todo: 函数修复测试
             qp.drawLine(line2_l, line3_h, line2_r, line3_h)
             qp.drawLine(35 + wr, 40 + hr, 35 + wr, 40 + hr + upright_h)
 
@@ -519,8 +519,9 @@ class PaintArea(QWidget):
                 k2 = abs(k2)
                 k3 = abs(k3)
                 k4 = abs(k4)
+                kmin = min(k3, k2)  # k2, k3中取较大值
 
-                if (k2 + k3) > 3 * (k1 + k4) and (k3 != 0 and k4 != 0):
+                if (k2 + k3) > 3 * (k1 + k4) and abs(k3 - k2) < kmin:
                     # 判断条件有：斜率异常大，后三点不是直线，均满足则确认
                     # print('第三个点两侧斜率异常大，count=', count-1)
                     state2 = 1
